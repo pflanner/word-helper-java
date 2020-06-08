@@ -7,7 +7,7 @@ import java.util.List;
 
 public class MainTest {
     @Test
-    public void rackPermuatations() {
+    public void rackPermutations() {
         List<Tile> rack = Main.makeRack("aaaaa");
         List<List<Tile>> racks = Main.generateRacksForPermutations(rack, 0);
         assertEquals(1, racks.size());
