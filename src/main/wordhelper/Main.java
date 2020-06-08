@@ -1,20 +1,13 @@
 package wordhelper;
 
 import wordhelper.config.BoardConfig;
-import wordhelper.config.EasyBoardConfig;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Author: Pete
@@ -92,268 +85,7 @@ public class Main {
             }
         }
     }
-    
-    public static GameBoard makeGameBoardBen() {
-        GameBoard b = new GameBoard();
-        b.addOldTile(new Tile('c', new Location(3, 7)));
-        b.addOldTile(new Tile('o', new Location(4, 7)));
-        b.addOldTile(new Tile('v', new Location(5, 7)));
-        b.addOldTile(new Tile('e', new Location(6, 7)));
-        b.addOldTile(new Tile('y', new Location(7, 7)));
 
-        b.addOldTile(new Tile('h', new Location(7, 2)));
-        b.addOldTile(new Tile('o', new Location(7, 3)));
-        b.addOldTile(new Tile('o', new Location(7, 4)));
-        b.addOldTile(new Tile('k', new Location(7, 5)));
-        b.addOldTile(new Tile('e', new Location(7, 6)));
-
-        b.addOldTile(new Tile('f', new Location(8, 4)));
-        b.addOldTile(new Tile('i', new Location(8, 5)));
-        b.addOldTile(new Tile('t', new Location(8, 6)));
-        
-        b.addOldTile(new Tile('p', new Location(3, 0), true));
-        b.addOldTile(new Tile('r', new Location(3, 1)));
-        b.addOldTile(new Tile('o', new Location(3, 2)));
-        b.addOldTile(new Tile('s', new Location(3, 3)));
-        b.addOldTile(new Tile('o', new Location(3, 4)));
-        b.addOldTile(new Tile('d', new Location(3, 5)));
-        b.addOldTile(new Tile('i', new Location(3, 6)));
-
-        b.addOldTile(new Tile('s', new Location(9, 1)));
-        b.addOldTile(new Tile('a', new Location(9, 2)));
-        b.addOldTile(new Tile('l', new Location(9, 3)));
-        b.addOldTile(new Tile('t', new Location(9, 4)));
-
-        b.addOldTile(new Tile('a', new Location(10, 3)));
-        b.addOldTile(new Tile('g', new Location(11, 3)));
-        b.addOldTile(new Tile('u', new Location(12, 3)));
-        b.addOldTile(new Tile('n', new Location(13, 3)));
-        b.addOldTile(new Tile('a', new Location(14, 3)));
-
-        b.addOldTile(new Tile('b', new Location(2, 1)));
-        b.addOldTile(new Tile('a', new Location(4, 1)));
-        b.addOldTile(new Tile('t', new Location(5, 1)));
-        b.addOldTile(new Tile('s', new Location(6, 1)));
-
-        b.addOldTile(new Tile('b', new Location(2, 4)));
-        b.addOldTile(new Tile('o', new Location(2, 5)));
-        b.addOldTile(new Tile('x', new Location(2, 6)));
-
-        b.addOldTile(new Tile('v', new Location(11, 0)));
-        b.addOldTile(new Tile('e', new Location(11, 1)));
-        b.addOldTile(new Tile('r', new Location(11, 2)));
-        b.addOldTile(new Tile('e', new Location(11, 4)));
-        b.addOldTile(new Tile('d', new Location(11, 5)));
-
-        b.addOldTile(new Tile('f', new Location(5, 5)));
-        b.addOldTile(new Tile('e', new Location(5, 6)));
-        b.addOldTile(new Tile('e', new Location(5, 8)));
-        b.addOldTile(new Tile('r', new Location(5, 9)));
-        
-        
-        b.addOldTile(new Tile('a', new Location(12, 5)));
-        b.addOldTile(new Tile('w', new Location(13, 5)));
-        b.addOldTile(new Tile('t', new Location(14, 5)));
-
-        b.addOldTile(new Tile('h', new Location(13, 6)));
-        b.addOldTile(new Tile('i', new Location(13, 7)));
-        b.addOldTile(new Tile('n', new Location(13, 8)));
-        b.addOldTile(new Tile('g', new Location(13, 9)));
-        b.addOldTile(new Tile('e', new Location(13, 10)));
-
-        b.addOldTile(new Tile('l', new Location(14, 10)));
-        b.addOldTile(new Tile('a', new Location(14, 11)));
-        b.addOldTile(new Tile('c', new Location(14, 12)));
-        b.addOldTile(new Tile('e', new Location(14, 13)));
-
-        b.addOldTile(new Tile('i', new Location(9, 14)));
-        b.addOldTile(new Tile('n', new Location(10, 14)));
-        b.addOldTile(new Tile('p', new Location(11, 14)));
-        b.addOldTile(new Tile('o', new Location(12, 14)));
-        b.addOldTile(new Tile('u', new Location(13, 14)));
-        
-        b.addOldTile(new Tile('j', new Location(8, 0)));
-        b.addOldTile(new Tile('o', new Location(8, 1)));
-
-        b.addOldTile(new Tile('l', new Location(5, 13)));
-        b.addOldTile(new Tile('a', new Location(6, 13)));
-        b.addOldTile(new Tile('r', new Location(7, 13)));
-        b.addOldTile(new Tile('u', new Location(8, 13)));
-        b.addOldTile(new Tile('m', new Location(9, 13)));
-
-        b.addOldTile(new Tile('h', new Location(4, 14)));
-        b.addOldTile(new Tile('i', new Location(5, 14)));
-        b.addOldTile(new Tile('d', new Location(6, 14)));
-        b.addOldTile(new Tile('e', new Location(7, 14)));
-
-        b.addOldTile(new Tile('t', new Location(14, 5)));
-        b.addOldTile(new Tile('i', new Location(14, 6)));
-        b.addOldTile(new Tile('d', new Location(14, 7)));
-        b.addOldTile(new Tile('e', new Location(14, 8)));
-
-        b.addOldTile(new Tile('g', new Location(6, 12)));
-        b.addOldTile(new Tile('e', new Location(7, 12)));
-        b.addOldTile(new Tile('m', new Location(8, 12)));
-
-        b.addOldTile(new Tile('w', new Location(9, 10)));
-        b.addOldTile(new Tile('u', new Location(10, 10)));
-        b.addOldTile(new Tile('r', new Location(11, 10)));
-        b.addOldTile(new Tile('z', new Location(12, 10)));
-
-        b.addOldTile(new Tile('p', new Location(7, 11)));
-        b.addOldTile(new Tile('e', new Location(8, 11)));
-        
-        b.addOldTile(new Tile('y', new Location(4, 8)));
-        b.addOldTile(new Tile('n', new Location(6, 8)));
-        b.addOldTile(new Tile('s', new Location(7, 8)));
-
-        b.addOldTile(new Tile('q', new Location(2, 10)));
-        b.addOldTile(new Tile('a', new Location(3, 10)));
-        b.addOldTile(new Tile('t', new Location(4, 10)));
-        b.addOldTile(new Tile('s', new Location(5, 10)));
-
-        b.addOldTile(new Tile('t', new Location(0, 11)));
-        b.addOldTile(new Tile('a', new Location(1, 11)));
-        b.addOldTile(new Tile('i', new Location(2, 11)));
-        b.addOldTile(new Tile('n', new Location(3, 11)));
-        
-        return b;
-    }
-
-    public static GameBoard makeGameBoard() {
-        GameBoard b = new GameBoard();
-        b.addOldTile(new Tile('a', new Location(3, 7)));
-        b.addOldTile(new Tile('d', new Location(4, 7), true));
-        b.addOldTile(new Tile('d', new Location(5, 7)));
-        b.addOldTile(new Tile('a', new Location(6, 7)));
-        b.addOldTile(new Tile('x', new Location(7, 7)));
-
-
-        b.addOldTile(new Tile('r', new Location(7, 5)));
-        b.addOldTile(new Tile('a', new Location(7, 6)));
-
-
-        b.addOldTile(new Tile('o', new Location(5, 8)));
-        b.addOldTile(new Tile('r', new Location(5, 9)));
-        b.addOldTile(new Tile('k', new Location(5, 10)));
-        b.addOldTile(new Tile('i', new Location(5, 11)));
-        b.addOldTile(new Tile('e', new Location(5, 12)));
-        b.addOldTile(new Tile('r', new Location(5, 13)));
-
-
-        b.addOldTile(new Tile('b', new Location(4, 4)));
-        b.addOldTile(new Tile('u', new Location(4, 5)));
-        b.addOldTile(new Tile('r', new Location(4, 6)));
-        b.addOldTile(new Tile('s', new Location(4, 8)));
-
-        b.addOldTile(new Tile('c', new Location(3, 11)));
-        b.addOldTile(new Tile('l', new Location(4, 11)));
-        b.addOldTile(new Tile('n', new Location(6, 11)));
-        b.addOldTile(new Tile('g', new Location(7, 11)));
-
-        b.addOldTile(new Tile('t', new Location(3, 9)));
-        b.addOldTile(new Tile('e', new Location(3, 10)));
-        b.addOldTile(new Tile('h', new Location(3, 12)));
-        b.addOldTile(new Tile('n', new Location(3, 13)));
-        b.addOldTile(new Tile('o', new Location(3, 14)));
-
-        b.addOldTile(new Tile('e', new Location(8, 5)));
-        b.addOldTile(new Tile('v', new Location(9, 5)));
-        b.addOldTile(new Tile('i', new Location(10, 5)));
-        b.addOldTile(new Tile('s', new Location(11, 5)));
-        b.addOldTile(new Tile('o', new Location(12, 5)));
-        b.addOldTile(new Tile('r', new Location(13, 5)));
-        
-        b.addOldTile(new Tile('v', new Location(14, 0)));
-        b.addOldTile(new Tile('a', new Location(14, 1)));
-        b.addOldTile(new Tile('l', new Location(14, 2)));
-        b.addOldTile(new Tile('l', new Location(14, 3)));
-        b.addOldTile(new Tile('e', new Location(14, 4)));
-        b.addOldTile(new Tile('y', new Location(14, 5)));
-
-        b.addOldTile(new Tile('j', new Location(11, 0)));
-        b.addOldTile(new Tile('a', new Location(11, 1)));
-        b.addOldTile(new Tile('u', new Location(11, 2)));
-        b.addOldTile(new Tile('n', new Location(11, 3)));
-        b.addOldTile(new Tile('t', new Location(11, 4)));
-
-        b.addOldTile(new Tile('f', new Location(5, 0)));
-        b.addOldTile(new Tile('a', new Location(5, 1)));
-        b.addOldTile(new Tile('d', new Location(5, 2)));
-        b.addOldTile(new Tile('g', new Location(5, 3)));
-        b.addOldTile(new Tile('e', new Location(5, 4)));
-
-        b.addOldTile(new Tile('w', new Location(2, 0)));
-        b.addOldTile(new Tile('a', new Location(3, 0)));
-        b.addOldTile(new Tile('i', new Location(4, 0)));
-        b.addOldTile(new Tile('e', new Location(6, 0)));
-        b.addOldTile(new Tile('d', new Location(7, 0)));
-
-        b.addOldTile(new Tile('r', new Location(8, 2)));
-        b.addOldTile(new Tile('o', new Location(9, 2)));
-        b.addOldTile(new Tile('q', new Location(10, 2)));
-        b.addOldTile(new Tile('e', new Location(12, 2)));
-
-        b.addOldTile(new Tile('c', new Location(1, 13), true));
-        b.addOldTile(new Tile('e', new Location(2, 13)));
-        b.addOldTile(new Tile('t', new Location(4, 13)));
-        b.addOldTile(new Tile('i', new Location(6, 13)));
-        b.addOldTile(new Tile('o', new Location(7, 13)));
-        b.addOldTile(new Tile('l', new Location(8, 13)));
-        b.addOldTile(new Tile('e', new Location(9, 13)));
-
-        b.addOldTile(new Tile('o', new Location(8, 14)));
-        b.addOldTile(new Tile('n', new Location(9, 14)));
-        b.addOldTile(new Tile('t', new Location(10, 14)));
-        b.addOldTile(new Tile('o', new Location(11, 14)));
-
-
-        b.addOldTile(new Tile('m', new Location(0, 11)));
-        b.addOldTile(new Tile('u', new Location(1, 11)));
-        b.addOldTile(new Tile('s', new Location(2, 11)));
-
-        b.addOldTile(new Tile('h', new Location(12, 6)));
-        b.addOldTile(new Tile('e', new Location(13, 6)));
-        b.addOldTile(new Tile('s', new Location(14, 6)));
-
-
-        b.addOldTile(new Tile('o', new Location(12, 0)));
-        b.addOldTile(new Tile('b', new Location(12, 1)));
-        b.addOldTile(new Tile('e', new Location(12, 2)));
-        
-        b.addOldTile(new Tile('f', new Location(7, 3)));
-        b.addOldTile(new Tile('e', new Location(8, 3)));
-        b.addOldTile(new Tile('w', new Location(9, 3)));
-
-        b.addOldTile(new Tile('a', new Location(7, 1)));
-        b.addOldTile(new Tile('a', new Location(8, 1)));
-        b.addOldTile(new Tile('h', new Location(9, 1)));
-
-        b.addOldTile(new Tile('p', new Location(13, 4)));
-        b.addOldTile(new Tile('z', new Location(13, 7)));
-        b.addOldTile(new Tile('e', new Location(13, 8)));
-        b.addOldTile(new Tile('s', new Location(13, 9)));
-        
-        b.addOldTile(new Tile('d', new Location(14, 8)));
-        b.addOldTile(new Tile('i', new Location(14, 9)));
-        b.addOldTile(new Tile('t', new Location(14, 10)));
-        b.addOldTile(new Tile('t', new Location(14, 11)));
-        b.addOldTile(new Tile('y', new Location(14, 12)));
-        
-        b.addOldTile(new Tile('u', new Location(13, 11)));
-        b.addOldTile(new Tile('m', new Location(13, 12)));
-        b.addOldTile(new Tile('p', new Location(13, 13)));
-
-        b.addOldTile(new Tile('i', new Location(6, 10)));
-        b.addOldTile(new Tile('d', new Location(6, 12)));
-        b.addOldTile(new Tile('e', new Location(6, 14)));
-
-        b.addOldTile(new Tile('g', new Location(11, 13)));
-        b.addOldTile(new Tile('i', new Location(12, 13)));
-
-        return b;
-    }
-    
     private static GameBoard makeGameBoardFromFile(String fileName) {
         GameBoard gameBoard;
         Properties p = new Properties();
@@ -405,63 +137,8 @@ public class Main {
     private static String makeTileKey(int r, int c) {
         return "tile" + r + "," + c;
     }
-    
-    public static GameBoard makeGameBoardEasy() {
-        GameBoard b = new GameBoard(new EasyBoardConfig());
-        
-        b.addOldTile(new Tile('v', new Location(5, 4)));
-        b.addOldTile(new Tile('e', new Location(5, 5)));
-        b.addOldTile(new Tile('r', new Location(5, 6)));
-        b.addOldTile(new Tile('i', new Location(5, 7)));
-        b.addOldTile(new Tile('t', new Location(5, 8)));
-        b.addOldTile(new Tile('e', new Location(5, 9)));
 
-        b.addOldTile(new Tile('z', new Location(3, 7)));
-        b.addOldTile(new Tile('e', new Location(4, 7)));
-        b.addOldTile(new Tile('n', new Location(6, 7)));
-
-        b.addOldTile(new Tile('s', new Location(5, 10)));
-        b.addOldTile(new Tile('o', new Location(6, 10)));
-        b.addOldTile(new Tile('c', new Location(7, 10)));
-        b.addOldTile(new Tile('k', new Location(8, 10)));
-
-        b.addOldTile(new Tile('m', new Location(0, 8)));
-        b.addOldTile(new Tile('o', new Location(1, 8)));
-        b.addOldTile(new Tile('x', new Location(2, 8)));
-        b.addOldTile(new Tile('a', new Location(3, 8)));
-
-        b.addOldTile(new Tile('f', new Location(1, 5)));
-        b.addOldTile(new Tile('l', new Location(1, 6)));
-        b.addOldTile(new Tile('o', new Location(1, 7)));
-        b.addOldTile(new Tile('d', new Location(1, 9)));
-
-        b.addOldTile(new Tile('n', new Location(0, 1)));
-        b.addOldTile(new Tile('i', new Location(0, 2)));
-        b.addOldTile(new Tile('t', new Location(0, 3)));
-        b.addOldTile(new Tile('r', new Location(0, 4)));
-        b.addOldTile(new Tile('e', new Location(0, 5)));
-
-        b.addOldTile(new Tile('a', new Location(9, 5)));
-        b.addOldTile(new Tile('i', new Location(9, 6)));
-        b.addOldTile(new Tile('s', new Location(9, 7)));
-        b.addOldTile(new Tile('l', new Location(9, 8)));
-        b.addOldTile(new Tile('e', new Location(9, 9)));
-        b.addOldTile(new Tile('s', new Location(9, 10)));
-
-        b.addOldTile(new Tile('j', new Location(10, 2)));
-        b.addOldTile(new Tile('a', new Location(10, 3)));
-        b.addOldTile(new Tile('y', new Location(10, 4)));
-        b.addOldTile(new Tile('s', new Location(10, 5)));
-
-        b.addOldTile(new Tile('a', new Location(6, 8)));
-        b.addOldTile(new Tile('p', new Location(7, 8)));
-        b.addOldTile(new Tile('a', new Location(8, 8)));
-        b.addOldTile(new Tile('o', new Location(10, 8)));
-        
-        return b;
-    }
-    
-    private static List<Tile> makeRack(String strRack) {
+    static List<Tile> makeRack(String strRack) {
         List<Tile> rack = new ArrayList<>(strRack.length());
         for (int i = 0; i < strRack.length(); i++) {
             char c = strRack.charAt(i);
@@ -753,6 +430,67 @@ public class Main {
             }
         }
         return permutations;
+    }
+
+    static List<List<Tile>> generatePermutations(String rack, int wildcards) {
+        List<List<Tile>> permutations = new ArrayList<>();
+
+        for (List<Tile> r : generateRacksForPermutations(makeRack(rack), wildcards)) {
+            for (int i = 1; i <= rack.length() + wildcards; i++) {
+                generatePermutationsHelper(r, new ArrayList<>(), i, permutations);
+            }
+        }
+
+        return permutations;
+    }
+
+    private static void generatePermutationsHelper(List<Tile> rack, List<Tile> permutation, int limit, List<List<Tile>> permutations) {
+        if (permutation.size() == limit) {
+            permutations.add(permutation);
+        } else {
+            for (int i = 0; i < rack.size(); i++) {
+                Tile t = rack.get(i);
+                // Do we need to make a copy of the tile?
+                Tile tCopy = t.getCopy();
+
+                List<Tile> rackCopy = copyRack(rack);
+                List<Tile> permutationCopy = copyRack(permutation);
+                permutationCopy.add(tCopy);
+                rackCopy.remove(i);
+                generatePermutationsHelper(rackCopy, permutationCopy, limit, permutations);
+            }
+        }
+    }
+
+    static List<List<Tile>> generateRacksForPermutations(List<Tile> rack, int wildcards) {
+        List<List<Tile>> racks = new ArrayList<>();
+        if (wildcards == 0) {
+            racks.add(rack);
+        } else {
+            for (char c : "abcdefghijlkmnopqrstuvwxyz".toCharArray()) {
+                List<Tile> rackCopy = copyRack(rack);
+                Tile t = new Tile(c);
+                t.setWildcard(true);
+                rackCopy.add(t);
+                racks.addAll(generateRacksForPermutations(rackCopy, wildcards - 1));
+            }
+        }
+
+        return racks;
+    }
+
+    static List<Tile> copyRack(List<Tile> rack) {
+        if (rack == null) {
+            return null;
+        }
+
+        List<Tile> copy = new ArrayList<>(rack.size());
+
+        for (Tile t : rack) {
+            copy.add(t.getCopy());
+        }
+
+        return copy;
     }
     
     private static void printProgress(int count, int total) {

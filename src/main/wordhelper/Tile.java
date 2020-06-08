@@ -20,6 +20,7 @@ public class Tile {
     
     public Tile(Character letter) {
         this.letter = letter;
+        this.location = new Location();
     }
     
     public Tile(Character letter, Location location) {
@@ -38,7 +39,7 @@ public class Tile {
     }
     
     public Tile getCopy() {
-        return new Tile(this.letter, new Location(this.location.getRow(), this.location.getCol()));
+        return new Tile(this.letter, new Location(this.location.getRow(), this.location.getCol()), this.isWildcard);
     }
     
     public boolean equals(Object o) {
