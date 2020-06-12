@@ -11,6 +11,7 @@ import java.util.Collection;
 public class Result {
     private int score;
     private Collection<Tile> tiles;
+    private Orientation orientation;
     
     public Result() { }
     
@@ -42,5 +43,13 @@ public class Result {
 
     public void setTiles(Collection<Tile> tiles) {
         this.tiles = tiles;
+    }
+
+    public Orientation getOrientation() {
+        return orientation;
+    }
+
+    public void setOrientation(Orientation orientation) {
+        this.orientation = orientation;
     }
 }
