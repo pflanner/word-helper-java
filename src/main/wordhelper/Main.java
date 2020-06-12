@@ -25,6 +25,7 @@ import java.util.Set;
  */
 public class Main {
     // TODO reduce human input. there is a lot of possibility for error manually inputting everything
+    // TODO when showing all results, there are a lot of duplicates. Remove duplicates from racks and permutations and see if that helps.
 
     private static final Properties config = loadConfig();
     private static final Set<String> dict = loadDictionary();
@@ -32,7 +33,7 @@ public class Main {
     
     public static void main(String[] args) {
         String again = "y";
-        while ("y".equals(again)) {
+        while ("y".equalsIgnoreCase(again)) {
             String saveDir = config.getProperty("saveDir");
             String saveFile = config.getProperty("saveFile");
             if (!saveDir.endsWith(File.separator)) {
@@ -46,7 +47,7 @@ public class Main {
             p("Compute best word?");
             String compute = sc.nextLine();
 
-            if ("y".equals(compute.toLowerCase())) {
+            if ("y".equalsIgnoreCase(compute)) {
                 System.out.println("Enter rack letters: ");
                 String rack = sc.nextLine();
 
@@ -119,13 +120,13 @@ public class Main {
     private static void readWordFromStdIn(GameBoard gameBoard) {
         Scanner sc = new Scanner(System.in);
         p("Enter word: ");
-        String word = sc.nextLine();
+        String word = sc.nextLine().toLowerCase();
         p("Enter start row: ");
         int startRow = sc.nextInt();
         p("Enter start column: ");
         int startCol = sc.nextInt();
         p("Enter orientation (h or v): ");
-        Orientation orientation = sc.next().equals("h") ? Orientation.HORIZONTAL : Orientation.VERTICAL;
+        Orientation orientation = sc.next().equalsIgnoreCase("h") ? Orientation.HORIZONTAL : Orientation.VERTICAL;
         
         List<Tile> tiles = makeRack(word);
         Location currentLocation = new Location(startRow, startCol);
