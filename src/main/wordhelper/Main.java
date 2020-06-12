@@ -23,14 +23,18 @@ import java.util.Set;
  */
 public class Main {
     // TODO reduce human input. there is a lot of possibility for error manually inputting everything
-    
+
+    private static final Properties config = loadConfig();
     private static final Set<String> dict = loadDictionary();
     
     public static void main(String[] args) {
         String again = "y";
         while ("y".equals(again)) {
-            String saveDir = "c:/users/pete/ideaprojects/wordhelper/resources/";
-            String saveFile = "becki.gbd";
+            String saveDir = config.getProperty("saveDir");
+            String saveFile = config.getProperty("saveFile");
+            if (!saveDir.endsWith(File.separator)) {
+                saveDir += File.separator;
+            }
             GameBoard board = makeGameBoardFromFile(saveDir + saveFile);
             readWordFromStdIn(board);
             p(board.getPrettyPrint());
@@ -196,7 +200,7 @@ public class Main {
     
     private static Set<String> loadDictionary() {
         Set<String> dict = new HashSet<>();
-        File f = new File("c:/users/pete/pycharmprojects/wordhelper/resources/words.txt");
+        File f = new File(config.getProperty("dictionaryPath"));
         try (FileInputStream fis = new FileInputStream(f)) {
             Scanner sc = new Scanner(fis);
             while (sc.hasNext()) {
@@ -208,6 +212,20 @@ public class Main {
             System.out.println("IOException when loading dictionary");
         }
         return dict;
+    }
+
+    private static Properties loadConfig() {
+        Properties config = new Properties();
+
+        File f = new File("resources/config.properties");
+        try (FileInputStream fis = new FileInputStream(f)) {
+            config.load(fis);
+        } catch (FileNotFoundException e) {
+            System.out.println("FileNotFoundException when loading config");
+        } catch (IOException e) {
+            System.out.println("IOException when loading config");
+        }
+        return config;
     }
     
     private static List<Result> computeHighestScore(GameBoard board, String rack, int wildcard) {
