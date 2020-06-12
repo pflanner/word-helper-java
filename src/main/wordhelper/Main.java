@@ -62,7 +62,7 @@ public class Main {
 
                 List<Result> results = computeHighestScore(board, adjustedRack, wildcard);
                 results.sort(Comparator.comparingInt(Result::getScore).reversed());
-                Result firstResult = results.get(1);
+                Result firstResult = results.get(0);
                 System.out.format("Score: %d%n", firstResult.getScore());
                 if (firstResult.getTiles() != null && firstResult.getTiles().size() > 0) {
                     board.clearNewTiles();
