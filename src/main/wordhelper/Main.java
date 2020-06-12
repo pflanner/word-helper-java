@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -22,10 +23,6 @@ import java.util.Set;
  */
 public class Main {
     // TODO reduce human input. there is a lot of possibility for error manually inputting everything
-    // TODO read in 2 wildcards
-    // TODO permutations in Java
-    // TODO save game board to file and read it back in
-    // TODO clean up and make a git repo
     
     private static Set<String> dict = loadDictionary();
     
@@ -45,18 +42,57 @@ public class Main {
             if ("y".equals(compute.toLowerCase())) {
                 System.out.println("Enter rack letters: ");
                 String rack = sc.nextLine();
-                // TODO handle 2 wildcards
-                boolean wildcard = rack.contains("?");
 
-                Result result = computeHighestScore(board, rack, wildcard);
-                System.out.format("Score: %d%n", result.getScore());
-                if (result.getTiles() != null && result.getTiles().size() > 0) {
+                int wildcard = 0;
+                String adjustedRack = "";
+                for (char c : rack.toCharArray()) {
+                    if (c == '?') {
+                        wildcard++;
+                    } else {
+                        adjustedRack += c;
+                    }
+                }
+
+                List<Result> results = computeHighestScore(board, adjustedRack, wildcard);
+                results.sort(Comparator.comparingInt(Result::getScore).reversed());
+                Result firstResult = results.get(1);
+                System.out.format("Score: %d%n", firstResult.getScore());
+                if (firstResult.getTiles() != null && firstResult.getTiles().size() > 0) {
                     board.clearNewTiles();
-                    for (Tile tile : result.getTiles()) {
+                    for (Tile tile : firstResult.getTiles()) {
                         board.addNewTile(tile);
                     }
                     System.out.println(board.getPrettyPrint());
                 }
+//                for (Result r : results) {
+//                    if (r.getTiles() != null && r.getTiles().size() > 0) {
+//                        Collection<Tile> tiles = r.getTiles();
+//                        Tile firstTile = null;
+//
+//                        Queue<Tile> minHeap;
+//                        if (r.getOrientation() == Orientation.HORIZONTAL) {
+//                            minHeap = new PriorityQueue<>(tiles.size(), Comparator.comparingInt((tile) -> tile.getLocation().getCol()));
+//                        } else {
+//                            minHeap = new PriorityQueue<>(tiles.size(), Comparator.comparingInt((tile) -> tile.getLocation().getRow()));
+//                        }
+//
+//                        for (Tile t : tiles) {
+//                            minHeap.offer(t);
+//                        }
+//
+//                        String word = "";
+//                        while (!minHeap.isEmpty()) {
+//                            Tile tile = minHeap.poll();
+//                            if (firstTile == null) {
+//                                firstTile = tile;
+//                            }
+//                            word += tile.getLetter();
+//                        }
+//
+//                        System.out.format("Score: %d Word: %s Start: %s Orientation: %s%n", r.getScore(), word, firstTile.getLocation(), r.getOrientation());
+//                    }
+//
+//                }
             }
             saveGameBoard(board, saveDir + saveFile);
             
@@ -99,7 +135,7 @@ public class Main {
         try {
             p.load(new FileInputStream(fileName));
 
-            String configClassName = p.getProperty("config", "wordhelper.StandardBoardConfig");
+            String configClassName = p.getProperty("config", "wordhelper.config.StandardBoardConfig");
             Class clazz = Class.forName(configClassName);
             BoardConfig boardConfig = (BoardConfig)clazz.newInstance(); 
 
@@ -168,30 +204,28 @@ public class Main {
                 dict.add(sc.next());
             }
         } catch (FileNotFoundException e) {
-            System.out.println("FileNotFoundException");
+            System.out.println("FileNotFoundException when loading dictionary");
         } catch (IOException e) {
-            System.out.println("IOException");
+            System.out.println("IOException when loading dictionary");
         }
         return dict;
     }
     
-    private static Result computeHighestScore(GameBoard board, String rack, boolean wildcard) throws Exception {
-        Result result = new Result();
+    private static List<Result> computeHighestScore(GameBoard board, String rack, int wildcard) throws Exception {
+        List<Result> results = new ArrayList<>();
         
         int count = 0;
         
-        List<List<Tile>> permutations = generatePermutationsPython(rack, wildcard);
+        List<List<Tile>> permutations = generatePermutations(rack, wildcard);
         for (List<Tile> permutation : permutations) {
             printProgress(count++, permutations.size());
 
-            Result hResult = tryHorizontalPlacements(board, permutation);
-            Result vResult = tryVerticalPlacements(board, permutation);
-            Result curResult = hResult.getScore() > vResult.getScore() ? hResult : vResult;
-            result = curResult.getScore() > result.getScore() ? curResult : result;
+            results.add(tryHorizontalPlacements(board, permutation));
+            results.add(tryVerticalPlacements(board, permutation));
         }
         
         
-        return result;
+        return results;
     }
 
     private static Result tryHorizontalPlacements(GameBoard board, List<Tile> permutation) {
@@ -228,6 +262,7 @@ public class Main {
                 }
             }
         }
+        result.setOrientation(Orientation.HORIZONTAL);
         return result;
     }
 
@@ -265,6 +300,7 @@ public class Main {
                 }
             }
         }
+        result.setOrientation(Orientation.VERTICAL);
         return result;
     }
     
