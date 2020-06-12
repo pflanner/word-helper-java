@@ -24,9 +24,9 @@ import java.util.Set;
 public class Main {
     // TODO reduce human input. there is a lot of possibility for error manually inputting everything
     
-    private static Set<String> dict = loadDictionary();
+    private static final Set<String> dict = loadDictionary();
     
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) {
         String again = "y";
         while ("y".equals(again)) {
             String saveDir = "c:/users/pete/ideaprojects/wordhelper/resources/";
@@ -123,7 +123,6 @@ public class Main {
                 } else if (orientation == Orientation.VERTICAL) {
                     currentLocation.setRow(currentLocation.getRow() + 1);
                 }
-                
             }
         }
     }
@@ -211,7 +210,7 @@ public class Main {
         return dict;
     }
     
-    private static List<Result> computeHighestScore(GameBoard board, String rack, int wildcard) throws Exception {
+    private static List<Result> computeHighestScore(GameBoard board, String rack, int wildcard) {
         List<Result> results = new ArrayList<>();
         
         int count = 0;
@@ -458,22 +457,6 @@ public class Main {
         return sb.toString();
     }
 
-    private static List<List<Tile>> generatePermutationsPython(String rack, boolean wildcard) throws Exception {
-        // TODO using python itertools to generate permutations for now
-        String pythonWildcard = wildcard ? "True" : "False";
-        List<List<Tile>> permutations = new ArrayList<>();
-        String python = "c:/programdata/anaconda3/python.exe";
-        Runtime.getRuntime().exec(python + " c:/users/pete/pycharmprojects/wordhelper/generate_permutations.py \"" + rack + "\" " + pythonWildcard);
-        Thread.sleep(1000);
-        try (Scanner fileScanner = new Scanner(new FileInputStream("c:/users/pete/pycharmprojects/wordhelper/resources/permutations.txt"))) {
-            while (fileScanner.hasNext()) {
-                String s = fileScanner.next();
-                permutations.add(makeRack(s));
-            }
-        }
-        return permutations;
-    }
-
     static List<List<Tile>> generatePermutations(String rack, int wildcards) {
         List<List<Tile>> permutations = new ArrayList<>();
 
@@ -538,11 +521,7 @@ public class Main {
     private static void printProgress(int count, int total) {
         if (total >= 100 && (count % (total / 100) == 0)) {
             int progress = (int)((float)count / (float)total * 100f);
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < progress; i++) {
-                sb.append('=');
-            }
-            System.out.format("|%-99s|%n", sb.toString());
+            System.out.format("|%-99s|%n", "=".repeat(progress));
         }
     }
     
