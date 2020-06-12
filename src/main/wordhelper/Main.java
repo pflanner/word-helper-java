@@ -12,7 +12,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Properties;
+import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -26,6 +28,7 @@ public class Main {
 
     private static final Properties config = loadConfig();
     private static final Set<String> dict = loadDictionary();
+    private static final boolean showAdditionalWords = Boolean.parseBoolean(config.getProperty("showAdditionalWords"));
     
     public static void main(String[] args) {
         String again = "y";
@@ -68,36 +71,44 @@ public class Main {
                     }
                     System.out.println(board.getPrettyPrint());
                 }
-//                for (Result r : results) {
-//                    if (r.getTiles() != null && r.getTiles().size() > 0) {
-//                        Collection<Tile> tiles = r.getTiles();
-//                        Tile firstTile = null;
-//
-//                        Queue<Tile> minHeap;
-//                        if (r.getOrientation() == Orientation.HORIZONTAL) {
-//                            minHeap = new PriorityQueue<>(tiles.size(), Comparator.comparingInt((tile) -> tile.getLocation().getCol()));
-//                        } else {
-//                            minHeap = new PriorityQueue<>(tiles.size(), Comparator.comparingInt((tile) -> tile.getLocation().getRow()));
-//                        }
-//
-//                        for (Tile t : tiles) {
-//                            minHeap.offer(t);
-//                        }
-//
-//                        String word = "";
-//                        while (!minHeap.isEmpty()) {
-//                            Tile tile = minHeap.poll();
-//                            if (firstTile == null) {
-//                                firstTile = tile;
-//                            }
-//                            word += tile.getLetter();
-//                        }
-//
-//                        System.out.format("Score: %d Word: %s Start: %s Orientation: %s%n", r.getScore(), word, firstTile.getLocation(), r.getOrientation());
-//                    }
-//
-//                }
+
+                if (showAdditionalWords) {
+                    for (Result r : results) {
+                        if (r.getTiles() != null && r.getTiles().size() > 0) {
+                            Collection<Tile> tiles = r.getTiles();
+                            Tile firstTile = null;
+
+                            Queue<Tile> minHeap;
+                            if (r.getOrientation() == Orientation.HORIZONTAL) {
+                                minHeap = new PriorityQueue<>(tiles.size(), Comparator.comparingInt((tile) -> tile.getLocation().getCol()));
+                            } else {
+                                minHeap = new PriorityQueue<>(tiles.size(), Comparator.comparingInt((tile) -> tile.getLocation().getRow()));
+                            }
+
+                            for (Tile t : tiles) {
+                                minHeap.offer(t);
+                            }
+
+                            String word = "";
+                            while (!minHeap.isEmpty()) {
+                                Tile tile = minHeap.poll();
+                                if (firstTile == null) {
+                                    firstTile = tile;
+                                }
+                                word += tile.getLetter();
+                            }
+
+                            if (firstTile == null) {
+                                firstTile = new Tile();
+                            }
+
+                            System.out.format("Score: %d Word: %s Start: %s Orientation: %s%n", r.getScore(), word, firstTile.getLocation(), r.getOrientation());
+                        }
+
+                    }
+                }
             }
+
             saveGameBoard(board, saveDir + saveFile);
             
             p("Again?");
