@@ -25,7 +25,6 @@ import java.util.Set;
  */
 public class Main {
     // TODO reduce human input. there is a lot of possibility for error manually inputting everything
-    // TODO when showing all results, there are a lot of duplicates. Remove duplicates from racks and permutations and see if that helps.
 
     private static final Properties config = loadConfig();
     private static final Set<String> dict = loadDictionary();
@@ -127,10 +126,9 @@ public class Main {
         int startCol = sc.nextInt();
         p("Enter orientation (h or v): ");
         Orientation orientation = sc.next().equalsIgnoreCase("h") ? Orientation.HORIZONTAL : Orientation.VERTICAL;
-        
-        List<Tile> tiles = makeRack(word);
+
         Location currentLocation = new Location(startRow, startCol);
-        for (Tile tile : tiles) {
+        for (Tile tile : new Tiles(word)) {
             if (!gameBoard.getOldTiles().containsKey(tile.getLocation())) {
                 tile.setLocation(new Location(currentLocation));
                 gameBoard.addOldTile(tile);
@@ -194,21 +192,6 @@ public class Main {
     private static String makeTileKey(int r, int c) {
         return "tile" + r + "," + c;
     }
-
-    static List<Tile> makeRack(String strRack) {
-        List<Tile> rack = new ArrayList<>(strRack.length());
-        for (int i = 0; i < strRack.length(); i++) {
-            char c = strRack.charAt(i);
-            Tile tile = new Tile(c);
-            if (c == '?') {
-                tile.setLetter(strRack.charAt(++i));
-                tile.setWildcard(true);
-            }
-            rack.add(tile);
-        }
-        
-        return rack;
-    }
     
     private static Set<String> loadDictionary() {
         Set<String> dict = new HashSet<>();
@@ -245,7 +228,7 @@ public class Main {
         
         int count = 0;
         
-        List<List<Tile>> permutations = generatePermutations(rack, wildcard);
+        Set<Tiles> permutations = generatePermutations(rack, wildcard);
         for (List<Tile> permutation : permutations) {
             printProgress(count++, permutations.size());
 
@@ -487,19 +470,19 @@ public class Main {
         return sb.toString();
     }
 
-    static List<List<Tile>> generatePermutations(String rack, int wildcards) {
-        List<List<Tile>> permutations = new ArrayList<>();
+    static Set<Tiles> generatePermutations(String rack, int wildcards) {
+        Set<Tiles> permutations = new HashSet<>();
 
-        for (List<Tile> r : generateRacksForPermutations(makeRack(rack), wildcards)) {
+        for (Tiles r : generateRacksForPermutations(new Tiles(rack), wildcards)) {
             for (int i = 1; i <= rack.length() + wildcards; i++) {
-                generatePermutationsHelper(r, new ArrayList<>(), i, permutations);
+                generatePermutationsHelper(r, new Tiles(), i, permutations);
             }
         }
 
         return permutations;
     }
 
-    private static void generatePermutationsHelper(List<Tile> rack, List<Tile> permutation, int limit, List<List<Tile>> permutations) {
+    private static void generatePermutationsHelper(Tiles rack, Tiles permutation, int limit, Set<Tiles> permutations) {
         if (permutation.size() == limit) {
             permutations.add(permutation);
         } else {
@@ -508,8 +491,8 @@ public class Main {
                 // Do we need to make a copy of the tile?
                 Tile tCopy = t.getCopy();
 
-                List<Tile> rackCopy = copyRack(rack);
-                List<Tile> permutationCopy = copyRack(permutation);
+                Tiles rackCopy = copyRack(rack);
+                Tiles permutationCopy = copyRack(permutation);
                 permutationCopy.add(tCopy);
                 rackCopy.remove(i);
                 generatePermutationsHelper(rackCopy, permutationCopy, limit, permutations);
@@ -517,13 +500,13 @@ public class Main {
         }
     }
 
-    static List<List<Tile>> generateRacksForPermutations(List<Tile> rack, int wildcards) {
-        List<List<Tile>> racks = new ArrayList<>();
+    static Set<Tiles> generateRacksForPermutations(Tiles rack, int wildcards) {
+        Set<Tiles> racks = new HashSet<>();
         if (wildcards == 0) {
             racks.add(rack);
         } else {
             for (char c : "abcdefghijlkmnopqrstuvwxyz".toCharArray()) {
-                List<Tile> rackCopy = copyRack(rack);
+                Tiles rackCopy = copyRack(rack);
                 Tile t = new Tile(c);
                 t.setWildcard(true);
                 rackCopy.add(t);
@@ -534,18 +517,12 @@ public class Main {
         return racks;
     }
 
-    static List<Tile> copyRack(List<Tile> rack) {
+    static Tiles copyRack(Tiles rack) {
         if (rack == null) {
             return null;
         }
 
-        List<Tile> copy = new ArrayList<>(rack.size());
-
-        for (Tile t : rack) {
-            copy.add(t.getCopy());
-        }
-
-        return copy;
+        return new Tiles(rack);
     }
     
     private static void printProgress(int count, int total) {
