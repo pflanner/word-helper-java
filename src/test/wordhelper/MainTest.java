@@ -43,8 +43,8 @@ public class MainTest {
         Result firstResult = results.get(0);
 
         assertEquals(35, firstResult.getScore(), "max score calulation is not correct");
-        assertNotNull(firstResult.getTiles(), "we didn't get a first result");
-        assertNotEquals(0, firstResult.getTiles().size(), "first result was empty");
+        assertNotNull(firstResult.getTiles(), "we didn't get tiles for the first result");
+        assertNotEquals(0, firstResult.getTiles().size(), "first result tiles were empty");
 
         Tiles expectedTiles = new Tiles();
         expectedTiles.add(new Tile('c', new Location(2, 4)));
