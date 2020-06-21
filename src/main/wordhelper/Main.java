@@ -28,6 +28,7 @@ public class Main {
 
     private static final Properties config = loadConfig();
     private static final Set<String> dict = loadDictionary();
+    private static final TrieNode trieDict = loadTrieDictionary();
     private static final boolean showAdditionalWords = Boolean.parseBoolean(config.getProperty("showAdditionalWords"));
     
     public static void main(String[] args) {
@@ -209,6 +210,26 @@ public class Main {
         return dict;
     }
 
+    private static TrieNode loadTrieDictionary() {
+        TrieNode root = new TrieNode();
+        File f = new File(config.getProperty("dictionaryPath"));
+        try (FileInputStream fis = new FileInputStream(f)) {
+            Scanner sc = new Scanner(fis);
+            while (sc.hasNext()) {
+                String word = sc.next();
+                TrieNode cur = root;
+                for (int i = 0; i < word.length(); i++) {
+                    cur = cur.addChild(word.charAt(i));
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("FileNotFoundException when loading dictionary");
+        } catch (IOException e) {
+            System.out.println("IOException when loading dictionary");
+        }
+        return root;
+    }
+
     private static Properties loadConfig() {
         Properties config = new Properties();
 
@@ -245,16 +266,28 @@ public class Main {
         List<Tile> tiles = new ArrayList<>(permutation);
 
         for (int r = 0; r < board.getConfig().getSize(); r++) {
-            for (int c = 0; c < board.getConfig().getSize(); c++) {
+            TRY_POS: for (int c = 0; c < board.getConfig().getSize(); c++) {
                 board.clearNewTiles();
+                TrieNode cur = trieDict;
                 Location curLoc = new Location(r, c);
                 for (Tile tile : tiles) {
                     tile.setLocation(curLoc);
                     while(!board.addNewTile(tile) && tile.getLocation().getCol() < board.getConfig().getSize()) {
-                        tile.getLocation().setRow(tile.getLocation().getRow());
-                        tile.getLocation().setCol(tile.getLocation().getCol() + 1);
+                        char curLetter = board.getOldTiles().get(curLoc).getLetter();
+                        if (!cur.getChildren().containsKey(curLetter)) {
+                            break TRY_POS;
+                        }
+                        cur = cur.getChildren().get(curLetter);
+                        curLoc = tile.getLocation().oneRight();
+                        tile.setLocation(curLoc);
                     }
+
                     if (board.getNewTiles().containsKey(tile.getLocation())) {
+                        char curLetter = board.getNewTiles().get(curLoc).getLetter();
+                        if (!cur.getChildren().containsKey(curLetter)) {
+                            break;
+                        }
+                        cur = cur.getChildren().get(curLetter);
                         curLoc = tile.getLocation().oneRight();
                     } else {
                         break;
@@ -285,14 +318,26 @@ public class Main {
         for (int r = 0; r < board.getConfig().getSize(); r++) {
             for (int c = 0; c < board.getConfig().getSize(); c++) {
                 board.clearNewTiles();
+                TrieNode cur = trieDict;
                 Location curLoc = new Location(r, c);
-                for (Tile tile : tiles) {
+                TRY_POS: for (Tile tile : tiles) {
                     tile.setLocation(curLoc);
                     while(!board.addNewTile(tile) && tile.getLocation().getRow() < board.getConfig().getSize()) {
-                        tile.getLocation().setRow(tile.getLocation().getRow() + 1);
-                        tile.getLocation().setCol(tile.getLocation().getCol());
+                        char curLetter = board.getOldTiles().get(curLoc).getLetter();
+                        if (!cur.getChildren().containsKey((curLetter))) {
+                            break TRY_POS;
+                        }
+                        cur = cur.getChildren().get(curLetter);
+                        curLoc = tile.getLocation().oneDown();
+                        tile.setLocation(curLoc);
                     }
+
                     if (board.getNewTiles().containsKey(tile.getLocation())) {
+                        char curLetter = board.getNewTiles().get(curLoc).getLetter();
+                        if (!cur.getChildren().containsKey(curLetter)) {
+                            break;
+                        }
+                        cur = cur.getChildren().get(curLetter);
                         curLoc = tile.getLocation().oneDown();
                     } else {
                         break;
