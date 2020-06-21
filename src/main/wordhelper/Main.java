@@ -141,7 +141,7 @@ public class Main {
         }
     }
 
-    private static GameBoard makeGameBoardFromFile(String fileName) {
+    static GameBoard makeGameBoardFromFile(String fileName) {
         GameBoard gameBoard;
         Properties p = new Properties();
         
@@ -223,7 +223,7 @@ public class Main {
         return config;
     }
     
-    private static List<Result> computeHighestScore(GameBoard board, String rack, int wildcard) {
+    static List<Result> computeHighestScore(GameBoard board, String rack, int wildcard) {
         List<Result> results = new ArrayList<>();
         
         int count = 0;
