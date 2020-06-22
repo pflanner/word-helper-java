@@ -30,8 +30,26 @@ public class Main {
     private static final Set<String> dict = loadDictionary();
     private static final TrieNode trieDict = loadTrieDictionary();
     private static final boolean showAdditionalWords = Boolean.parseBoolean(config.getProperty("showAdditionalWords"));
-    
+
     public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String choice = "";
+
+        while (!choice.equals("r") && !choice.equals("d")) {
+            p("(R)egular game or (D)uel?");
+            choice = sc.nextLine();
+
+            if (choice.toLowerCase().equals("r")) {
+                playRegularGame();
+            } else if (choice.toLowerCase().equals("d")) {
+                playDuel();
+            } else {
+                p(String.format("Sorry, I didn't understand your response: %s", choice));
+            }
+        }
+    }
+
+    private static void playRegularGame() {
         String again = "y";
         while ("y".equalsIgnoreCase(again)) {
             String saveDir = config.getProperty("saveDir");
@@ -111,12 +129,50 @@ public class Main {
             }
 
             saveGameBoard(board, saveDir + saveFile);
-            
+
             p("Again?");
             again = sc.nextLine();
         }
     }
-    
+
+    public static void playDuel() {
+        String saveDir = config.getProperty("saveDir");
+        String saveFile = config.getProperty("saveFile");
+        if (!saveDir.endsWith(File.separator)) {
+            saveDir += File.separator;
+        }
+
+        Scanner sc = new Scanner(System.in);
+        GameBoard board = makeGameBoardFromFile(saveDir + saveFile);
+
+        while (true) {
+            System.out.println("Enter rack letters: ");
+            String rack = sc.nextLine();
+
+            int wildcard = 0;
+            String adjustedRack = "";
+            for (char c : rack.toCharArray()) {
+                if (c == '?') {
+                    wildcard++;
+                } else {
+                    adjustedRack += c;
+                }
+            }
+
+            List<Result> results = computeHighestScore(board, adjustedRack, wildcard);
+            results.sort(Comparator.comparingInt(Result::getScore).reversed());
+            Result firstResult = results.get(0);
+            System.out.format("Score: %d%n", firstResult.getScore());
+            if (firstResult.getTiles() != null && firstResult.getTiles().size() > 0) {
+                board.clearNewTiles();
+                for (Tile tile : firstResult.getTiles()) {
+                    board.addNewTile(tile);
+                }
+                System.out.println(board.getPrettyPrint());
+            }
+        }
+    }
+
     private static void readWordFromStdIn(GameBoard gameBoard) {
         Scanner sc = new Scanner(System.in);
         p("Enter word: ");
@@ -145,13 +201,13 @@ public class Main {
     static GameBoard makeGameBoardFromFile(String fileName) {
         GameBoard gameBoard;
         Properties p = new Properties();
-        
+
         try {
             p.load(new FileInputStream(fileName));
 
             String configClassName = p.getProperty("config", "wordhelper.config.StandardBoardConfig");
             Class clazz = Class.forName(configClassName);
-            BoardConfig boardConfig = (BoardConfig)clazz.newInstance(); 
+            BoardConfig boardConfig = (BoardConfig) clazz.newInstance();
 
             gameBoard = new GameBoard(boardConfig);
             for (int r = 0; r < boardConfig.getSize(); r++) {
@@ -173,7 +229,7 @@ public class Main {
                     }
                 }
             }
-            
+
         } catch (IOException e) {
             p("IOException while reading properties file: " + e.getMessage());
             return null;
@@ -189,11 +245,11 @@ public class Main {
         }
         return gameBoard;
     }
-    
+
     private static String makeTileKey(int r, int c) {
         return "tile" + r + "," + c;
     }
-    
+
     private static Set<String> loadDictionary() {
         Set<String> dict = new HashSet<>();
         File f = new File(config.getProperty("dictionaryPath"));
@@ -221,6 +277,7 @@ public class Main {
                 for (int i = 0; i < word.length(); i++) {
                     cur = cur.addChild(word.charAt(i));
                 }
+                cur.setWord(true);
             }
         } catch (FileNotFoundException e) {
             System.out.println("FileNotFoundException when loading dictionary");
@@ -243,12 +300,12 @@ public class Main {
         }
         return config;
     }
-    
+
     static List<Result> computeHighestScore(GameBoard board, String rack, int wildcard) {
         List<Result> results = new ArrayList<>();
-        
+
         int count = 0;
-        
+
         Set<Tiles> permutations = generatePermutations(rack, wildcard);
         for (List<Tile> permutation : permutations) {
             printProgress(count++, permutations.size());
@@ -256,8 +313,8 @@ public class Main {
             results.add(tryHorizontalPlacements(board, permutation));
             results.add(tryVerticalPlacements(board, permutation));
         }
-        
-        
+
+
         return results;
     }
 
@@ -266,13 +323,14 @@ public class Main {
         List<Tile> tiles = new ArrayList<>(permutation);
 
         for (int r = 0; r < board.getConfig().getSize(); r++) {
-            TRY_POS: for (int c = 0; c < board.getConfig().getSize(); c++) {
+            TRY_POS:
+            for (int c = 0; c < board.getConfig().getSize(); c++) {
                 board.clearNewTiles();
                 TrieNode cur = trieDict;
                 Location curLoc = new Location(r, c);
                 for (Tile tile : tiles) {
                     tile.setLocation(curLoc);
-                    while(!board.addNewTile(tile) && tile.getLocation().getCol() < board.getConfig().getSize()) {
+                    while (!board.addNewTile(tile) && tile.getLocation().getCol() < board.getConfig().getSize()) {
                         char curLetter = board.getOldTiles().get(curLoc).getLetter();
                         if (!cur.getChildren().containsKey(curLetter)) {
                             break TRY_POS;
@@ -320,9 +378,10 @@ public class Main {
                 board.clearNewTiles();
                 TrieNode cur = trieDict;
                 Location curLoc = new Location(r, c);
-                TRY_POS: for (Tile tile : tiles) {
+                TRY_POS:
+                for (Tile tile : tiles) {
                     tile.setLocation(curLoc);
-                    while(!board.addNewTile(tile) && tile.getLocation().getRow() < board.getConfig().getSize()) {
+                    while (!board.addNewTile(tile) && tile.getLocation().getRow() < board.getConfig().getSize()) {
                         char curLetter = board.getOldTiles().get(curLoc).getLetter();
                         if (!cur.getChildren().containsKey((curLetter))) {
                             break TRY_POS;
@@ -360,9 +419,9 @@ public class Main {
         result.setOrientation(Orientation.VERTICAL);
         return result;
     }
-    
+
     public static int computeScore(GameBoard board) {
-        if(!board.isValid()) {
+        if (!board.isValid()) {
             return 0;
         }
 
@@ -372,7 +431,7 @@ public class Main {
         for (List<Tile> word : words) {
             int wordScore = 0;
             int wordMultiplier = 1;
-            
+
             for (Tile tile : word) {
                 int tileScore = 0;
                 if (!tile.isWildcard()) {
@@ -385,7 +444,7 @@ public class Main {
                         }
                     }
                 }
-                
+
                 if (board.getNewTiles().containsKey(tile.getLocation())) {
                     if (config.getDws().contains(tile.getLocation())) {
                         wordMultiplier *= 2;
@@ -393,28 +452,28 @@ public class Main {
                         wordMultiplier *= 3;
                     }
                 }
-                
+
                 wordScore += tileScore;
             }
-            
+
             score += wordScore * wordMultiplier;
-            
-            
+
+
         }
         if (words.size() > 0 && board.getNewTiles().size() == config.getRackSize()) {
             score += config.getAllTileBonus();
         }
         return score;
     }
-    
+
     public static Set<List<Tile>> findNewWords(GameBoard board) {
         Set<List<Tile>> words = new HashSet<>();
         int verticalWordCount = 0;
         int horizontalWordCount = 0;
-        
+
         for (Tile tile : board.getNewTiles().values()) {
             List<Tile> word = new ArrayList<>();
-            
+
             // Vertical
             word.add(tile);
             Tile cur = tile;
@@ -422,15 +481,15 @@ public class Main {
                 cur = cur.getUpper();
                 word.add(0, cur);
             }
-            
+
             cur = tile;
             while (cur.getLower() != null) {
                 cur = cur.getLower();
                 word.add(cur);
             }
-            
+
             String strWord = listToString(word);
-            
+
             boolean isValidWord = dict.contains(strWord);
             boolean isLoneWord = board.getOldTiles().isEmpty();
 
@@ -442,7 +501,7 @@ public class Main {
                     words.clear();
                     return words;
                 }
-                
+
                 if (board.getOrientation() == Orientation.HORIZONTAL && word.size() > 1) {
                     words.clear();
                     return words;
@@ -453,9 +512,9 @@ public class Main {
                     return words;
                 }
             }
-            
+
             word = new ArrayList<>();
-            
+
             // Horizontal
             word.add(tile);
             cur = tile;
@@ -471,7 +530,7 @@ public class Main {
             }
 
             strWord = listToString(word);
-            
+
             isValidWord = dict.contains(strWord);
 
             if (isValidWord) {
@@ -489,24 +548,24 @@ public class Main {
                     words.clear();
                     return words;
                 }
-                
+
                 if (board.getOrientation() == Orientation.SINGLE && word.size() > 1) {
                     words.clear();
                     return words;
                 }
             }
         }
-        
+
         if (board.getOrientation() == Orientation.VERTICAL && verticalWordCount < 1) {
             words.clear();
         }
         if (board.getOrientation() == Orientation.HORIZONTAL && horizontalWordCount < 1) {
             words.clear();
         }
-        
+
         return words;
     }
-    
+
     private static String listToString(List<Tile> word) {
         StringBuilder sb = new StringBuilder();
         for (Tile tile : word) {
@@ -569,29 +628,29 @@ public class Main {
 
         return new Tiles(rack);
     }
-    
+
     private static void printProgress(int count, int total) {
         if (total >= 100 && (count % (total / 100) == 0)) {
-            int progress = (int)((float)count / (float)total * 100f);
+            int progress = (int) ((float) count / (float) total * 100f);
             System.out.format("|%-99s|%n", "=".repeat(progress));
         }
     }
-    
+
     private static void saveGameBoard(GameBoard gameBoard, String fileName) {
         try (FileOutputStream fileOutputStream = new FileOutputStream(fileName)) {
             Properties p = new Properties();
             p.setProperty("config", gameBoard.getConfig().getClass().getCanonicalName());
-            
+
             setTileProperties(gameBoard.getNewTiles().values(), p);
             setTileProperties(gameBoard.getOldTiles().values(), p);
-            
+
             p.store(fileOutputStream, null);
             p("Saved game board to " + fileName);
         } catch (IOException e) {
             p("IOException opening file for write: " + e.getMessage());
         }
     }
-    
+
     private static void setTileProperties(Collection<Tile> tiles, Properties p) {
         StringBuilder sb = new StringBuilder();
         for (Tile tile : tiles) {
@@ -607,7 +666,7 @@ public class Main {
             sb.setLength(0);
         }
     }
-    
+
     private static void p(String s) {
         System.out.println(s);
     }
