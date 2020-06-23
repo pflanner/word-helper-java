@@ -1,6 +1,7 @@
 package wordhelper;
 
 import wordhelper.config.BoardConfig;
+import wordhelper.config.EasyBoardConfig;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -135,7 +136,7 @@ public class Main {
         }
     }
 
-    public static void playDuel() {
+    private static void playDuel() {
         String saveDir = config.getProperty("saveDir");
         String saveFile = config.getProperty("saveFile");
         if (!saveDir.endsWith(File.separator)) {
@@ -143,9 +144,18 @@ public class Main {
         }
 
         Scanner sc = new Scanner(System.in);
-        GameBoard board = makeGameBoardFromFile(saveDir + saveFile);
+        int boardIndex = 0;
 
         while (true) {
+            GameBoard board;
+            String boardPath = saveDir + "duel-" + (boardIndex + 1) + ".gbd";
+            File f = new File(boardPath);
+            if (!f.exists()) {
+                board = new GameBoard(new EasyBoardConfig());
+            } else {
+                board = makeGameBoardFromFile(boardPath);
+            }
+
             System.out.println("Enter rack letters: ");
             String rack = sc.nextLine();
 
@@ -168,8 +178,12 @@ public class Main {
                 for (Tile tile : firstResult.getTiles()) {
                     board.addNewTile(tile);
                 }
-                System.out.println(board.getPrettyPrint());
+                p("Board #" + (boardIndex + 1));
+                p(board.getPrettyPrint());
             }
+
+            saveGameBoard(board, boardPath);
+            boardIndex = (boardIndex + 1) % 3;
         }
     }
 
