@@ -28,14 +28,16 @@ public class Location {
 //        if (col >= 14) {
 //            System.out.println("error col out of bounds");
 //        }
-        return new Location(row, col + 1);
+        col++;
+        return this;
     }
     
     public Location oneDown() {
 //        if (row >= 14) {
 //            System.out.println("error row out of bounds");
 //        }
-        return new Location(row + 1, col);
+        row++;
+        return this;
     }
 
     @Override

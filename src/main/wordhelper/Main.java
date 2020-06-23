@@ -337,35 +337,36 @@ public class Main {
         List<Tile> tiles = new ArrayList<>(permutation);
 
         for (int r = 0; r < board.getConfig().getSize(); r++) {
-            TRY_POS:
             for (int c = 0; c < board.getConfig().getSize(); c++) {
                 board.clearNewTiles();
                 TrieNode cur = trieDict;
                 Location curLoc = new Location(r, c);
+                int numTilesAdded = 0;
+                TRY_POS:
                 for (Tile tile : tiles) {
-                    tile.setLocation(curLoc);
-                    while (!board.addNewTile(tile) && tile.getLocation().getCol() < board.getConfig().getSize()) {
+                    while (board.getOldTiles().containsKey(curLoc) && curLoc.getCol() < board.getConfig().getSize()) {
                         char curLetter = board.getOldTiles().get(curLoc).getLetter();
                         if (!cur.getChildren().containsKey(curLetter)) {
                             break TRY_POS;
                         }
                         cur = cur.getChildren().get(curLetter);
-                        curLoc = tile.getLocation().oneRight();
-                        tile.setLocation(curLoc);
+                        curLoc.oneRight();
                     }
 
-                    if (board.getNewTiles().containsKey(tile.getLocation())) {
-                        char curLetter = board.getNewTiles().get(curLoc).getLetter();
+                    if (curLoc.getCol() < board.getConfig().getSize()) {
+                        char curLetter = tile.getLetter();
                         if (!cur.getChildren().containsKey(curLetter)) {
                             break;
                         }
+                        numTilesAdded++;
                         cur = cur.getChildren().get(curLetter);
-                        curLoc = tile.getLocation().oneRight();
+                        curLoc.oneRight();
                     } else {
                         break;
                     }
                 }
-                if (board.getNewTiles().size() == permutation.size()) {
+                if (numTilesAdded == permutation.size()) {
+                    addTilesToBoard(tiles, board, r, c, Orientation.HORIZONTAL);
                     int score = computeScore(board);
                     // deep copy the list
                     List<Tile> newTiles = new ArrayList<>(board.getNewTiles().size());
@@ -392,31 +393,33 @@ public class Main {
                 board.clearNewTiles();
                 TrieNode cur = trieDict;
                 Location curLoc = new Location(r, c);
+                int numTilesAdded = 0;
                 TRY_POS:
                 for (Tile tile : tiles) {
                     tile.setLocation(curLoc);
-                    while (!board.addNewTile(tile) && tile.getLocation().getRow() < board.getConfig().getSize()) {
+                    while (board.getOldTiles().containsKey(curLoc) && curLoc.getRow() < board.getConfig().getSize()) {
                         char curLetter = board.getOldTiles().get(curLoc).getLetter();
                         if (!cur.getChildren().containsKey((curLetter))) {
                             break TRY_POS;
                         }
                         cur = cur.getChildren().get(curLetter);
-                        curLoc = tile.getLocation().oneDown();
-                        tile.setLocation(curLoc);
+                        curLoc.oneDown();
                     }
 
-                    if (board.getNewTiles().containsKey(tile.getLocation())) {
-                        char curLetter = board.getNewTiles().get(curLoc).getLetter();
+                    if (curLoc.getRow() < board.getConfig().getSize()) {
+                        char curLetter = tile.getLetter();
                         if (!cur.getChildren().containsKey(curLetter)) {
                             break;
                         }
+                        numTilesAdded++;
                         cur = cur.getChildren().get(curLetter);
-                        curLoc = tile.getLocation().oneDown();
+                        curLoc.oneDown();
                     } else {
                         break;
                     }
                 }
-                if (board.getNewTiles().size() == permutation.size()) {
+                if (numTilesAdded == permutation.size()) {
+                    addTilesToBoard(tiles, board, r, c, Orientation.VERTICAL);
                     int score = computeScore(board);
                     // deep copy the list
                     List<Tile> newTiles = new ArrayList<>(board.getNewTiles().size());
@@ -432,6 +435,27 @@ public class Main {
         }
         result.setOrientation(Orientation.VERTICAL);
         return result;
+    }
+
+    private static void addTilesToBoard(List<Tile> tiles, GameBoard board, int r, int c, Orientation orientation) {
+        Location curLoc = new Location(r, c);
+        for (Tile tile : tiles) {
+            tile.setLocation(new Location(curLoc));
+            while (!board.addNewTile(tile)) {
+                if (orientation == Orientation.HORIZONTAL) {
+                    tile.getLocation().oneRight();
+                    curLoc.oneRight();
+                } else {
+                    tile.getLocation().oneDown();
+                    curLoc.oneDown();
+                }
+            }
+            if (orientation == Orientation.HORIZONTAL) {
+                curLoc.oneRight();
+            } else {
+                curLoc.oneDown();
+            }
+        }
     }
 
     public static int computeScore(GameBoard board) {
