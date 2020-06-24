@@ -178,26 +178,34 @@ public class GameBoard {
         }
     }
 
-    public boolean isValid(List<Tile> tilesToAdd, Orientation orientation) {
+    public boolean isValid(Map<Location,Tile> tilesToAdd, Orientation orientation) {
         if (tilesToAdd == null || tilesToAdd.isEmpty()) {
             return false;
         }
-
-        Location curLoc = new Location(tilesToAdd.get(0).getLocation().getRow(), tilesToAdd.get(0).getLocation().getCol());
 
         if (orientation == Orientation.HORIZONTAL) {
             // if the board has old tiles, at least one new tile must have at least one old tile neighbor
             // otherwise, at least one new tile must be on the center square
             boolean isTouchingCenter = false;
             boolean isNeighboringOldTile = false;
-            for (Tile tile : tilesToAdd) {
-                while (oldTiles.containsKey(curLoc)) {
-                    curLoc.oneRight();
+            boolean first = true;
+            Location prevLoc = new Location();
+            for (Location curLoc : tilesToAdd.keySet()) {
+                if (oldTiles.containsKey(curLoc)) {
+                    return false;
                 }
 
                 if (curLoc.getCol() >= getConfig().getSize()) {
                     // we're off the board
                     return false;
+                }
+
+                if (first) {
+                    first = false;
+                } else {
+                    if (curLoc.getRow() != prevLoc.getRow() || curLoc.getCol() == prevLoc.getCol()) {
+                        return false;
+                    }
                 }
 
                 if (oldTiles.containsKey(new Location(curLoc.getRow() - 1, curLoc.getCol())) ||
@@ -212,23 +220,34 @@ public class GameBoard {
                     isTouchingCenter = true;
                 }
 
-                curLoc.oneRight();
+                prevLoc = curLoc;
             }
 
-            return (isNeighboringOldTile || isTouchingCenter);
+            return isNeighboringOldTile || isTouchingCenter;
         } else if (orientation == Orientation.VERTICAL) {
             // if the board has old tiles, at least one new tile must have at least one old tile neighbor
             // otherwise, at least one new tile must be on the center square
             boolean isTouchingCenter = false;
             boolean isNeighboringOldTile = false;
-            for (Tile tile : tilesToAdd) {
-                while (oldTiles.containsKey(curLoc)) {
-                    curLoc.oneDown();
+            boolean first = true;
+            Location prevLoc = new Location();
+
+            for (Location curLoc : tilesToAdd.keySet()) {
+                if (oldTiles.containsKey(curLoc)) {
+                    return false;
                 }
 
                 if (curLoc.getRow() >= getConfig().getSize()) {
                     // we're off the board
                     return false;
+                }
+
+                if (first) {
+                    first = false;
+                } else {
+                    if (curLoc.getCol() != prevLoc.getCol() || curLoc.getRow() == prevLoc.getRow()) {
+                        return false;
+                    }
                 }
 
                 if (oldTiles.containsKey(new Location(curLoc.getRow() - 1, curLoc.getCol())) ||
@@ -240,12 +259,12 @@ public class GameBoard {
                     break;
                 }
 
-                if (config.getCenter().equals(tile.getLocation())) {
+                if (config.getCenter().equals(curLoc)) {
                     isTouchingCenter = true;
                     break;
                 }
 
-                curLoc.oneDown();
+                prevLoc = curLoc;
             }
 
             return isNeighboringOldTile || isTouchingCenter;
