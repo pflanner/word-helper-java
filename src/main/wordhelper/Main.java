@@ -370,12 +370,11 @@ public class Main {
                 final int row = r;
                 final int col = c;
                 executorService.execute(() -> {
-                    horizontalPlacementsHelper(board, row, col, tiles, result);
+                    tryHorizontalPlacementsHelper(board, row, col, tiles, result);
                     latch.countDown();
                 });
             }
         }
-        result.setOrientation(Orientation.HORIZONTAL);
 
         try {
             latch.await();
@@ -383,20 +382,21 @@ public class Main {
             p("InterruptedException while trying horizontal placements");
         }
 
+        result.setOrientation(Orientation.HORIZONTAL);
+
         return result;
     }
 
-    private static void horizontalPlacementsHelper(GameBoard board, int r, int c, List<Tile> tiles, final Result result) {
+    static void tryHorizontalPlacementsHelper(GameBoard board, int r, int c, List<Tile> tiles, final Result result) {
         TrieNode cur = trieDict;
         Location curLoc = new Location(r, c);
         Map<Location,Tile> newTiles = new HashMap<>(tiles.size());
 
-        TRY_POS:
         for (Tile tile : tiles) {
             while (board.getOldTiles().containsKey(curLoc) && curLoc.getCol() < board.getConfig().getSize()) {
                 char curLetter = board.getOldTiles().get(curLoc).getLetter();
                 if (!cur.getChildren().containsKey(curLetter)) {
-                    break TRY_POS;
+                    return;
                 }
                 cur = cur.getChildren().get(curLetter);
                 curLoc.oneRight();
@@ -405,7 +405,7 @@ public class Main {
             if (curLoc.getCol() < board.getConfig().getSize()) {
                 char curLetter = tile.getLetter();
                 if (!cur.getChildren().containsKey(curLetter)) {
-                    break;
+                    return;
                 }
 
                 newTiles.put(new Location(curLoc), tile);
@@ -413,7 +413,7 @@ public class Main {
                 cur = cur.getChildren().get(curLetter);
                 curLoc.oneRight();
             } else {
-                break;
+                return;
             }
         }
         if (newTiles.size() == tiles.size()) {
@@ -432,52 +432,71 @@ public class Main {
     static Result tryVerticalPlacements(GameBoard board, List<Tile> permutation) {
         Result result = new Result();
         List<Tile> tiles = new ArrayList<>(permutation);
+        int boardSize = board.getConfig().getSize();
+        final CountDownLatch latch = new CountDownLatch(boardSize * boardSize);
 
         for (int r = 0; r < board.getConfig().getSize(); r++) {
             for (int c = 0; c < board.getConfig().getSize(); c++) {
-                board.clearNewTiles();
-                TrieNode cur = trieDict;
-                Location curLoc = new Location(r, c);
-                Map<Location,Tile> newTiles = new HashMap<>(tiles.size());
+                final int row = r;
+                final int col = c;
+                executorService.execute(() -> {
+                    tryVerticalPlacementsHelper(board, row, col, tiles, result);
+                    latch.countDown();
+                });
+            }
+        }
 
-                TRY_POS:
-                for (Tile tile : tiles) {
-                    while (board.getOldTiles().containsKey(curLoc) && curLoc.getRow() < board.getConfig().getSize()) {
-                        char curLetter = board.getOldTiles().get(curLoc).getLetter();
-                        if (!cur.getChildren().containsKey((curLetter))) {
-                            break TRY_POS;
-                        }
-                        cur = cur.getChildren().get(curLetter);
-                        curLoc.oneDown();
-                    }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            p("InterruptedException while trying horizontal placements");
+        }
 
-                    if (curLoc.getRow() < board.getConfig().getSize()) {
-                        char curLetter = tile.getLetter();
-                        if (!cur.getChildren().containsKey(curLetter)) {
-                            break;
-                        }
+        result.setOrientation(Orientation.VERTICAL);
 
-                        newTiles.put(new Location(curLoc), tile);
+        return result;
+    }
 
-                        cur = cur.getChildren().get(curLetter);
-                        curLoc.oneDown();
-                    } else {
-                        break;
-                    }
+    static void tryVerticalPlacementsHelper(GameBoard board, int r, int c, List<Tile> tiles, final Result result) {
+        TrieNode cur = trieDict;
+        Location curLoc = new Location(r, c);
+        Map<Location,Tile> newTiles = new HashMap<>(tiles.size());
+
+        for (Tile tile : tiles) {
+            while (board.getOldTiles().containsKey(curLoc) && curLoc.getRow() < board.getConfig().getSize()) {
+                char curLetter = board.getOldTiles().get(curLoc).getLetter();
+                if (!cur.getChildren().containsKey((curLetter))) {
+                    return;
                 }
-                if (newTiles.size() == permutation.size()) {
-                    int score = computeScore(newTiles, board, Orientation.VERTICAL);
+                cur = cur.getChildren().get(curLetter);
+                curLoc.oneDown();
+            }
 
-                    if (score > result.getScore()) {
-                        result.setScore(score);
-                        result.setTiles(tiles);
-                        result.setStartLocation(new Location(r, c));
-                    }
+            if (curLoc.getRow() < board.getConfig().getSize()) {
+                char curLetter = tile.getLetter();
+                if (!cur.getChildren().containsKey(curLetter)) {
+                    return;
+                }
+
+                newTiles.put(new Location(curLoc), tile);
+
+                cur = cur.getChildren().get(curLetter);
+                curLoc.oneDown();
+            } else {
+                return;
+            }
+        }
+        if (newTiles.size() == tiles.size()) {
+            int score = computeScore(newTiles, board, Orientation.VERTICAL);
+
+            synchronized (result) {
+                if (score > result.getScore()) {
+                    result.setScore(score);
+                    result.setTiles(tiles);
+                    result.setStartLocation(new Location(r, c));
                 }
             }
         }
-        result.setOrientation(Orientation.VERTICAL);
-        return result;
     }
 
     public static int computeScore(Map<Location,Tile> newTiles, GameBoard board, Orientation orientation) {
