@@ -40,6 +40,16 @@ public class Location {
         return this;
     }
 
+    public Location oneUp() {
+        row--;
+        return this;
+    }
+
+    public Location oneLeft() {
+        col--;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Location)) return false;

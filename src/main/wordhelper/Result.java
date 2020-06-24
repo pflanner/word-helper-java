@@ -12,6 +12,7 @@ public class Result {
     private int score;
     private Collection<Tile> tiles;
     private Orientation orientation;
+    private Location startLocation;
     
     public Result() { }
     
@@ -51,5 +52,13 @@ public class Result {
 
     public void setOrientation(Orientation orientation) {
         this.orientation = orientation;
+    }
+
+    public Location getStartLocation() {
+        return startLocation;
+    }
+
+    public void setStartLocation(Location startLocation) {
+        this.startLocation = startLocation;
     }
 }

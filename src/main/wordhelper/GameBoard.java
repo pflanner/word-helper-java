@@ -6,6 +6,7 @@ import wordhelper.config.StandardBoardConfig;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,23 +15,23 @@ import java.util.Map;
  * Time: 5:21 AM
  */
 public class GameBoard {
-    private Map<Location,Tile> oldTiles;
-    private Map<Location,Tile> newTiles;
+    private Map<Location, Tile> oldTiles;
+    private Map<Location, Tile> newTiles;
     private BoardConfig config;
     private Orientation orientation;
-    
+
     public GameBoard() {
         oldTiles = new HashMap<>();
         newTiles = new HashMap<>();
         config = new StandardBoardConfig();
         orientation = Orientation.NONE;
     }
-    
+
     public GameBoard(BoardConfig config) {
         this();
         this.config = config;
     }
-    
+
     public boolean addOldTile(Tile tile) {
         Location loc = tile.getLocation();
         if (!oldTiles.containsKey(loc) && !newTiles.containsKey(loc)) {
@@ -41,7 +42,7 @@ public class GameBoard {
             return false;
         }
     }
-    
+
     public boolean addNewTile(Tile tile) {
         Location loc = tile.getLocation();
         if (!oldTiles.containsKey(loc) && !newTiles.containsKey(loc) && isInBounds(tile)) {
@@ -57,23 +58,23 @@ public class GameBoard {
                     return false;
                 }
             }
-            
+
             neighborify(tile);
             newTiles.put(loc, tile);
-            
+
             return true;
         }
-        
+
         return false;
     }
-    
+
     public void clearNewTiles() {
         for (Tile tile : newTiles.values()) {
-            if (tile.getUpper() != null) 
+            if (tile.getUpper() != null)
                 tile.getUpper().setLower(null);
             if (tile.getLower() != null)
                 tile.getLower().setUpper(null);
-            if (tile.getLeft() != null) 
+            if (tile.getLeft() != null)
                 tile.getLeft().setRight(null);
             if (tile.getRight() != null)
                 tile.getRight().setLeft(null);
@@ -81,10 +82,12 @@ public class GameBoard {
         newTiles.clear();
         orientation = Orientation.NONE;
     }
-    
+
     public boolean isValid() {
         if (orientation == Orientation.HORIZONTAL) {
-            // must be contiguous
+            // tiles must be contiguous in the direction we're adding them
+            // we're testing this by going from the leftmost new tile to the rightmost new tile
+            // one position at a time and making sure every position in between has a tile
             Iterator<Tile> i = newTiles.values().iterator();
             if (i.hasNext()) {
                 Tile first = i.next();
@@ -102,9 +105,9 @@ public class GameBoard {
                 while (cur.getRight() != null) {
                     cur = cur.getRight();
                 }
-                
+
                 boolean isContiguous = cur.getLocation().getCol() >= righmost.getLocation().getCol();
-                
+
                 // if the board has old tiles, at least one new tile must have at least one old tile neighbor
                 // otherwise, at least one new tile must be on the center square
                 boolean isTouchingCenter = false;
@@ -174,10 +177,86 @@ public class GameBoard {
             return false;
         }
     }
-    
+
+    public boolean isValid(List<Tile> tilesToAdd, Orientation orientation) {
+        if (tilesToAdd == null || tilesToAdd.isEmpty()) {
+            return false;
+        }
+
+        Location curLoc = new Location(tilesToAdd.get(0).getLocation().getRow(), tilesToAdd.get(0).getLocation().getCol());
+
+        if (orientation == Orientation.HORIZONTAL) {
+            // if the board has old tiles, at least one new tile must have at least one old tile neighbor
+            // otherwise, at least one new tile must be on the center square
+            boolean isTouchingCenter = false;
+            boolean isNeighboringOldTile = false;
+            for (Tile tile : tilesToAdd) {
+                while (oldTiles.containsKey(curLoc)) {
+                    curLoc.oneRight();
+                }
+
+                if (curLoc.getCol() >= getConfig().getSize()) {
+                    // we're off the board
+                    return false;
+                }
+
+                if (oldTiles.containsKey(new Location(curLoc.getRow() - 1, curLoc.getCol())) ||
+                        oldTiles.containsKey(new Location(curLoc.getRow() + 1, curLoc.getCol())) ||
+                        oldTiles.containsKey(new Location(curLoc.getRow(), curLoc.getCol() - 1)) ||
+                        oldTiles.containsKey(new Location(curLoc.getRow(), curLoc.getCol() + 1))
+                ) {
+                    isNeighboringOldTile = true;
+                }
+
+                if (config.getCenter().equals(curLoc)) {
+                    isTouchingCenter = true;
+                }
+
+                curLoc.oneRight();
+            }
+
+            return (isNeighboringOldTile || isTouchingCenter);
+        } else if (orientation == Orientation.VERTICAL) {
+            // if the board has old tiles, at least one new tile must have at least one old tile neighbor
+            // otherwise, at least one new tile must be on the center square
+            boolean isTouchingCenter = false;
+            boolean isNeighboringOldTile = false;
+            for (Tile tile : tilesToAdd) {
+                while (oldTiles.containsKey(curLoc)) {
+                    curLoc.oneDown();
+                }
+
+                if (curLoc.getRow() >= getConfig().getSize()) {
+                    // we're off the board
+                    return false;
+                }
+
+                if (oldTiles.containsKey(new Location(curLoc.getRow() - 1, curLoc.getCol())) ||
+                        oldTiles.containsKey(new Location(curLoc.getRow() + 1, curLoc.getCol())) ||
+                        oldTiles.containsKey(new Location(curLoc.getRow(), curLoc.getCol() - 1)) ||
+                        oldTiles.containsKey(new Location(curLoc.getRow(), curLoc.getCol() + 1))
+                ) {
+                    isNeighboringOldTile = true;
+                    break;
+                }
+
+                if (config.getCenter().equals(tile.getLocation())) {
+                    isTouchingCenter = true;
+                    break;
+                }
+
+                curLoc.oneDown();
+            }
+
+            return isNeighboringOldTile || isTouchingCenter;
+        } else {
+            return false;
+        }
+    }
+
     private void neighborify(Tile tile) {
         Location loc = tile.getLocation();
-        
+
         Tile oldUpper = oldTiles.get(new Location(loc.getRow() - 1, loc.getCol()));
         Tile oldLower = oldTiles.get(new Location(loc.getRow() + 1, loc.getCol()));
         Tile oldLeft = oldTiles.get(new Location(loc.getRow(), loc.getCol() - 1));
@@ -185,30 +264,30 @@ public class GameBoard {
 
         Tile newUpper = newTiles.get(new Location(loc.getRow() - 1, loc.getCol()));
         Tile newLower = newTiles.get(new Location(loc.getRow() + 1, loc.getCol()));
-        Tile newLeft =  newTiles.get(new Location(loc.getRow(), loc.getCol() - 1));
+        Tile newLeft = newTiles.get(new Location(loc.getRow(), loc.getCol() - 1));
         Tile newRight = newTiles.get(new Location(loc.getRow(), loc.getCol() + 1));
-        
+
         tile.setUpper(oldUpper != null ? oldUpper : newUpper);
         tile.setLower(oldLower != null ? oldLower : newLower);
         tile.setLeft(oldLeft != null ? oldLeft : newLeft);
         tile.setRight(oldRight != null ? oldRight : newRight);
-        
+
         if (tile.getUpper() != null)
             tile.getUpper().setLower(tile);
-        if (tile.getLower() != null) 
+        if (tile.getLower() != null)
             tile.getLower().setUpper(tile);
         if (tile.getLeft() != null)
             tile.getLeft().setRight(tile);
         if (tile.getRight() != null)
             tile.getRight().setLeft(tile);
     }
-    
+
     private boolean isInBounds(Tile tile) {
         Location loc = tile.getLocation();
         return loc != null && loc.getRow() >= 0 && loc.getRow() < config.getSize()
                 && loc.getCol() >= 0 && loc.getCol() < config.getSize();
     }
-    
+
     public String getPrettyPrint() {
         int columnSize = 5;
         StringBuilder sb = new StringBuilder();

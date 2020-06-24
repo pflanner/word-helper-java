@@ -1,6 +1,7 @@
 package wordhelper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
@@ -78,6 +79,8 @@ public class MainTest {
             results.sort(Comparator.comparingInt(Result::getScore).reversed());
             Result firstResult = results.get(0);
 
+            System.out.println(board.getPrettyPrint());
+
             assertEquals(tc.expectedScore, firstResult.getScore(), "max score calulation is not correct");
             assertNotNull(firstResult.getTiles(), "we didn't get tiles for the first result");
 
@@ -93,6 +96,39 @@ public class MainTest {
 
             assertEquals(tc.expectedTiles.size(), foundIndices.size(), "computed tiles did not match expectation");
         }
+    }
+
+    @Test
+    public void computeScoreInvalidWordPlacement() {
+        GameBoard board = Main.makeGameBoardFromFile("resources/easy-test.gbd");
+        Tiles tiles = getTilesFor(
+                new Tile('c', new Location(2, 9)),
+                new Tile('o', new Location(3, 9)),
+                new Tile('i', new Location(4, 9)),
+                new Tile('n', new Location(5, 9)),
+                new Tile('a', new Location(6, 9)),
+                new Tile('g', new Location(7, 9)),
+                new Tile('e', new Location(8, 9))
+        );
+        int score = Main.computeScore(tiles, board, Orientation.VERTICAL);
+
+        assertEquals(0, score, "non-zero score for invalid word placement");
+    }
+
+    @Test
+    public void invalidBoard() {
+        GameBoard board = Main.makeGameBoardFromFile("resources/easy-test.gbd");
+        Tiles tiles = getTilesFor(
+                new Tile('c', new Location(10, 10)),
+                new Tile('o', new Location(11, 6)),
+                new Tile('i', new Location(11, 4)),
+                new Tile('n', new Location(10, 9)),
+                new Tile('a', new Location(10, 9)),
+                new Tile('g', new Location(10, 9)),
+                new Tile('e', new Location(10, 9))
+        );
+
+        assertFalse(board.isValid(tiles, Orientation.HORIZONTAL), "Invalid board was marked valid");
     }
 
     private Tiles getTilesFor(Tile... tiles) {

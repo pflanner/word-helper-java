@@ -11,8 +11,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Properties;
 import java.util.Queue;
@@ -324,10 +326,35 @@ public class Main {
         for (List<Tile> permutation : permutations) {
             printProgress(count++, permutations.size());
 
-            results.add(tryHorizontalPlacements(board, permutation));
-            results.add(tryVerticalPlacements(board, permutation));
+            Result horizontalResult = tryHorizontalPlacements(board, permutation);
+            Result verticalResult = tryVerticalPlacements(board, permutation);
+            if (horizontalResult.getScore() > 0) {
+                results.add(horizontalResult);
+            }
+            if (verticalResult.getScore() > 0) {
+                results.add(verticalResult);
+            }
         }
 
+        if (results.size() > 0) {
+            results.sort(Comparator.comparingInt(Result::getScore).reversed());
+            Result firstResult = results.get(0);
+            Location curLoc = new Location(firstResult.getStartLocation());
+            for (Tile tile : firstResult.getTiles()) {
+                tile.getLocation().setRow(curLoc.getRow());
+                tile.getLocation().setCol(curLoc.getCol());
+
+                while(!board.addNewTile(tile)) {
+                    if (firstResult.getOrientation() == Orientation.HORIZONTAL) {
+                        tile.getLocation().oneRight();
+                    } else {
+                        tile.getLocation().oneDown();
+                    }
+                    curLoc.setRow(tile.getLocation().getRow());
+                    curLoc.setCol(tile.getLocation().getCol());
+                }
+            }
+        }
 
         return results;
     }
@@ -358,7 +385,11 @@ public class Main {
                         if (!cur.getChildren().containsKey(curLetter)) {
                             break;
                         }
+
                         numTilesAdded++;
+                        tile.getLocation().setRow(curLoc.getRow());
+                        tile.getLocation().setCol(curLoc.getCol());
+
                         cur = cur.getChildren().get(curLetter);
                         curLoc.oneRight();
                     } else {
@@ -366,16 +397,12 @@ public class Main {
                     }
                 }
                 if (numTilesAdded == permutation.size()) {
-                    addTilesToBoard(tiles, board, r, c, Orientation.HORIZONTAL);
-                    int score = computeScore(board);
-                    // deep copy the list
-                    List<Tile> newTiles = new ArrayList<>(board.getNewTiles().size());
-                    for (Tile tile : board.getNewTiles().values()) {
-                        newTiles.add(tile.getCopy());
-                    }
-                    Result newResult = new Result(score, newTiles);
-                    if (newResult.getScore() > result.getScore()) {
-                        result = newResult;
+                    int score = computeScore(tiles,  board, Orientation.HORIZONTAL);
+
+                    if (score > result.getScore()) {
+                        result.setScore(score);
+                        result.setTiles(tiles);
+                        result.setStartLocation(new Location(r, c));
                     }
                 }
             }
@@ -411,7 +438,11 @@ public class Main {
                         if (!cur.getChildren().containsKey(curLetter)) {
                             break;
                         }
+
                         numTilesAdded++;
+                        tile.getLocation().setRow(curLoc.getRow());
+                        tile.getLocation().setCol(curLoc.getCol());
+
                         cur = cur.getChildren().get(curLetter);
                         curLoc.oneDown();
                     } else {
@@ -419,16 +450,12 @@ public class Main {
                     }
                 }
                 if (numTilesAdded == permutation.size()) {
-                    addTilesToBoard(tiles, board, r, c, Orientation.VERTICAL);
-                    int score = computeScore(board);
-                    // deep copy the list
-                    List<Tile> newTiles = new ArrayList<>(board.getNewTiles().size());
-                    for (Tile tile : board.getNewTiles().values()) {
-                        newTiles.add(tile.getCopy());
-                    }
-                    Result newResult = new Result(score, newTiles);
-                    if (newResult.getScore() > result.getScore()) {
-                        result = newResult;
+                    int score = computeScore(tiles, board, Orientation.VERTICAL);
+
+                    if (score > result.getScore()) {
+                        result.setScore(score);
+                        result.setTiles(tiles);
+                        result.setStartLocation(new Location(r, c));
                     }
                 }
             }
@@ -458,14 +485,19 @@ public class Main {
         }
     }
 
-    public static int computeScore(GameBoard board) {
-        if (!board.isValid()) {
+    public static int computeScore(List<Tile> tiles, GameBoard board, Orientation orientation) {
+        if (!board.isValid(tiles, orientation)) {
             return 0;
+        }
+
+        Map<Location,Tile> newTiles = new HashMap<>(tiles.size());
+        for (Tile tile : tiles) {
+            newTiles.put(tile.getLocation(), tile);
         }
 
         BoardConfig config = board.getConfig();
         int score = 0;
-        Set<List<Tile>> words = findNewWords(board);
+        Set<List<Tile>> words = findNewWords(tiles, board, orientation);
         for (List<Tile> word : words) {
             int wordScore = 0;
             int wordMultiplier = 1;
@@ -474,7 +506,7 @@ public class Main {
                 int tileScore = 0;
                 if (!tile.isWildcard()) {
                     tileScore = config.getLetterPoints().get(tile.getLetter());
-                    if (board.getNewTiles().containsKey(tile.getLocation())) {
+                    if (newTiles.containsKey(tile.getLocation())) {
                         if (config.getDls().contains(tile.getLocation())) {
                             tileScore *= 2;
                         } else if (config.getTls().contains(tile.getLocation())) {
@@ -483,7 +515,7 @@ public class Main {
                     }
                 }
 
-                if (board.getNewTiles().containsKey(tile.getLocation())) {
+                if (newTiles.containsKey(tile.getLocation())) {
                     if (config.getDws().contains(tile.getLocation())) {
                         wordMultiplier *= 2;
                     } else if (config.getTws().contains(tile.getLocation())) {
@@ -498,32 +530,37 @@ public class Main {
 
 
         }
-        if (words.size() > 0 && board.getNewTiles().size() == config.getRackSize()) {
+        if (words.size() > 0 && newTiles.size() == config.getRackSize()) {
             score += config.getAllTileBonus();
         }
         return score;
     }
 
-    public static Set<List<Tile>> findNewWords(GameBoard board) {
+    public static Set<List<Tile>> findNewWords(List<Tile> tiles, GameBoard board, Orientation orientation) {
         Set<List<Tile>> words = new HashSet<>();
         int verticalWordCount = 0;
         int horizontalWordCount = 0;
+        Map<Location,Tile> newTiles = new HashMap<>(tiles.size());
+        for (Tile tile : tiles) {
+            newTiles.put(tile.getLocation(), tile);
+        }
 
-        for (Tile tile : board.getNewTiles().values()) {
+        for (Tile tile : tiles) {
             List<Tile> word = new ArrayList<>();
+            Location curLoc = new Location(tile.getLocation().getRow(), tile.getLocation().getCol());
 
             // Vertical
-            word.add(tile);
-            Tile cur = tile;
-            while (cur.getUpper() != null) {
-                cur = cur.getUpper();
-                word.add(0, cur);
+            // find the start
+            do {
+                curLoc.oneUp();
             }
+            while (board.getOldTiles().containsKey(curLoc) || newTiles.containsKey(curLoc));
+            curLoc.oneDown();
 
-            cur = tile;
-            while (cur.getLower() != null) {
-                cur = cur.getLower();
-                word.add(cur);
+            // add the tiles to the word
+            while (board.getOldTiles().containsKey(curLoc) || newTiles.containsKey(curLoc)) {
+                word.add(board.getOldTiles().getOrDefault(curLoc, newTiles.get(curLoc)));
+                curLoc.oneDown();
             }
 
             String strWord = listToString(word);
@@ -535,36 +572,38 @@ public class Main {
                 words.add(word);
                 verticalWordCount++;
             } else if (!isValidWord) {
-                if (board.getOrientation() == Orientation.VERTICAL && word.size() == 1) {
+                if (orientation == Orientation.VERTICAL) {
                     words.clear();
                     return words;
                 }
 
-                if (board.getOrientation() == Orientation.HORIZONTAL && word.size() > 1) {
+                if (orientation == Orientation.HORIZONTAL && word.size() > 1) {
                     words.clear();
                     return words;
                 }
 
-                if (board.getOrientation() == Orientation.SINGLE && word.size() > 1) {
+                if (orientation == Orientation.SINGLE && word.size() > 1) {
                     words.clear();
                     return words;
                 }
             }
 
             word = new ArrayList<>();
+            curLoc.setRow(tile.getLocation().getRow());
+            curLoc.setCol(tile.getLocation().getCol());
 
             // Horizontal
-            word.add(tile);
-            cur = tile;
-            while (cur.getLeft() != null) {
-                cur = cur.getLeft();
-                word.add(0, cur);
+            // find the start
+            do {
+                curLoc.oneLeft();
             }
+            while (board.getOldTiles().containsKey(curLoc) || newTiles.containsKey(curLoc));
+            curLoc.oneRight();
 
-            cur = tile;
-            while (cur.getRight() != null) {
-                cur = cur.getRight();
-                word.add(cur);
+            // add the tiles to the word
+            while (board.getOldTiles().containsKey(curLoc) || newTiles.containsKey(curLoc)) {
+                word.add(board.getOldTiles().getOrDefault(curLoc, newTiles.get(curLoc)));
+                curLoc.oneRight();
             }
 
             strWord = listToString(word);
@@ -577,17 +616,17 @@ public class Main {
                     horizontalWordCount++;
                 }
             } else {
-                if (board.getOrientation() == Orientation.HORIZONTAL && word.size() == 1) {
+                if (orientation == Orientation.HORIZONTAL) {
                     words.clear();
                     return words;
                 }
 
-                if (board.getOrientation() == Orientation.VERTICAL && word.size() > 1) {
+                if (orientation == Orientation.VERTICAL && word.size() > 1) {
                     words.clear();
                     return words;
                 }
 
-                if (board.getOrientation() == Orientation.SINGLE && word.size() > 1) {
+                if (orientation == Orientation.SINGLE && word.size() > 1) {
                     words.clear();
                     return words;
                 }
@@ -707,5 +746,9 @@ public class Main {
 
     private static void p(String s) {
         System.out.println(s);
+    }
+
+    private static void p(Integer i) {
+        System.out.println(i);
     }
 }
