@@ -38,7 +38,7 @@ public class Main {
     private static final TrieNode trieDict = loadTrieDictionary();
     private static final boolean showAdditionalWords = Boolean.parseBoolean(config.getProperty("showAdditionalWords"));
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Scanner sc = new Scanner(System.in);
         String choice = "";
 
@@ -56,7 +56,7 @@ public class Main {
         }
     }
 
-    private static void playRegularGame() {
+    private static void playRegularGame() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
         String again = "y";
         while ("y".equalsIgnoreCase(again)) {
             String saveDir = config.getProperty("saveDir");
@@ -142,9 +142,8 @@ public class Main {
         }
     }
 
-    private static void playDuel() {
+    private static void playDuel() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
         String saveDir = config.getProperty("saveDir");
-        String saveFile = config.getProperty("saveFile");
         if (!saveDir.endsWith(File.separator)) {
             saveDir += File.separator;
         }
@@ -211,14 +210,14 @@ public class Main {
                 gameBoard.addOldTile(tile);
                 if (orientation == Orientation.HORIZONTAL) {
                     currentLocation.setCol(currentLocation.getCol() + 1);
-                } else if (orientation == Orientation.VERTICAL) {
+                } else {
                     currentLocation.setRow(currentLocation.getRow() + 1);
                 }
             }
         }
     }
 
-    static GameBoard makeGameBoardFromFile(String fileName) {
+    static GameBoard makeGameBoardFromFile(String fileName) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
         GameBoard gameBoard;
         Properties p = new Properties();
 
@@ -251,17 +250,14 @@ public class Main {
             }
 
         } catch (IOException e) {
-            p("IOException while reading properties file: " + e.getMessage());
-            return null;
+            throw new IOException("IOException while reading properties file: " + e.getMessage(), e);
         } catch (ClassNotFoundException e) {
-            p("ClassNotFoundException while reading properties file: " + e.getMessage());
-            return null;
+            throw new ClassNotFoundException("ClassNotFoundException while reading properties file: " + e.getMessage(), e);
         } catch (IllegalAccessException e) {
-            p("IllegalAccessException while reading properties file: " + e.getMessage());
-            return null;
+            throw new IllegalAccessException("IllegalAccessException while reading properties file: " + e.getMessage());
         } catch (InstantiationException e) {
             p("InstantiationException while reading properties file: " + e.getMessage());
-            return null;
+            throw new InstantiationException("InstantiationException while reading properties file: " + e.getMessage());
         }
         return gameBoard;
     }

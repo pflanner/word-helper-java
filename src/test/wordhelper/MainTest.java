@@ -40,7 +40,7 @@ public class MainTest {
      * Prevent regressions in max score computation with some benchmark cases.
      */
     @Test
-    public void maxScore() {
+    public void maxScore() throws Exception {
         class TestCase {
             TestCase(String name, String gameBoardPath, String rack, int expectedScore, Tiles expectedTiles) {
                 this.name = name;
@@ -105,7 +105,7 @@ public class MainTest {
     }
 
     @Test
-    public void computeScore() {
+    public void computeScore() throws Exception {
         class TestCase {
             TestCase(String name, String gameBoardPath, Map<Location, Tile> tileMap, Orientation orientation, int expectedScore) {
                 this.name = name;
@@ -168,7 +168,7 @@ public class MainTest {
     }
 
     @Test
-    public void tryVerticalPlacements() {
+    public void tryVerticalPlacements() throws Exception {
         class TestCase {
             TestCase(String name, String gameBoardPath, Tiles tiles, int expectedScore) {
                 this.name = name;
@@ -210,7 +210,7 @@ public class MainTest {
     }
 
     @Test
-    public void tryHorizontalPlacements() {
+    public void tryHorizontalPlacements() throws Exception {
         GameBoard board = Main.makeGameBoardFromFile("resources/easy-test.gbd");
         Tiles tiles = getTilesFor(
                 new Tile('a', new Location(3, 6)),
@@ -225,7 +225,7 @@ public class MainTest {
     }
 
     @Test
-    public void invalidBoard() {
+    public void invalidBoard() throws Exception {
         GameBoard board = Main.makeGameBoardFromFile("resources/easy-test.gbd");
         Map<Location, Tile> tileMap = getTileMapFor(
                 new Tile('c', new Location(10, 10)),
@@ -241,7 +241,7 @@ public class MainTest {
     }
 
     @Test
-    public void performance() {
+    public void performance() throws Exception{
         for (int i = 0; i < 100; i++) {
             long startTime = System.nanoTime();
             for (int j = 0; j < 5; j++) {
