@@ -242,13 +242,19 @@ public class MainTest {
 
     @Test
     public void performance() throws Exception{
-        for (int i = 0; i < 100; i++) {
+        int numTests = 100;
+        int numIterationsPerTest = 5;
+        long[] result = new long[numTests];
+
+        for (int i = 0; i < numTests; i++) {
             long startTime = System.nanoTime();
-            for (int j = 0; j < 5; j++) {
+            for (int j = 0; j < numIterationsPerTest; j++) {
                 tryHorizontalPlacements();
             }
-            System.out.println((System.nanoTime() - startTime) / 1000);
+            result[i] = (System.nanoTime() - startTime) / 1_000_000;
         }
+
+        System.out.println(String.format("%d millisecond average", Arrays.stream(result).sum() / result.length));
     }
 
     private Tiles getTilesFor(Tile... tiles) {

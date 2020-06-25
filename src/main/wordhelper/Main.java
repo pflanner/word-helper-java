@@ -20,9 +20,9 @@ import java.util.Properties;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Author: Pete
@@ -32,11 +32,11 @@ import java.util.concurrent.Executors;
 public class Main {
     // TODO reduce human input. there is a lot of possibility for error manually inputting everything
 
-    private static final ExecutorService executorService = Executors.newFixedThreadPool(12);
     private static final Properties config = loadConfig();
     private static final Set<String> dict = loadDictionary();
     private static final TrieNode trieDict = loadTrieDictionary();
     private static final boolean showAdditionalWords = Boolean.parseBoolean(config.getProperty("showAdditionalWords"));
+    private static final ExecutorService executorService = Executors.newFixedThreadPool(Integer.parseInt(config.getProperty("numThreads")));
 
     public static void main(String[] args) throws Exception {
         Scanner sc = new Scanner(System.in);
@@ -56,7 +56,7 @@ public class Main {
         }
     }
 
-    private static void playRegularGame() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+    private static void playRegularGame() throws Exception {
         String again = "y";
         while ("y".equalsIgnoreCase(again)) {
             String saveDir = config.getProperty("saveDir");
@@ -142,7 +142,7 @@ public class Main {
         }
     }
 
-    private static void playDuel() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+    private static void playDuel() throws Exception {
         String saveDir = config.getProperty("saveDir");
         if (!saveDir.endsWith(File.separator)) {
             saveDir += File.separator;
@@ -317,22 +317,23 @@ public class Main {
         return config;
     }
 
-    static List<Result> computeHighestScore(GameBoard board, String rack, int wildcard) {
+    static List<Result> computeHighestScore(GameBoard board, String rack, int wildcard) throws Exception {
         List<Result> results = new ArrayList<>();
 
         int count = 0;
 
         Set<Tiles> permutations = generatePermutations(rack, wildcard);
+        List<Future<Result>> resultFutures = new ArrayList<>(permutations.size() * 2);
         for (List<Tile> permutation : permutations) {
-            printProgress(count++, permutations.size());
+            resultFutures.add(executorService.submit(() -> tryHorizontalPlacements(board, permutation)));
+            resultFutures.add(executorService.submit(() -> tryVerticalPlacements(board, permutation)));
+        }
 
-            Result horizontalResult = tryHorizontalPlacements(board, permutation);
-            Result verticalResult = tryVerticalPlacements(board, permutation);
-            if (horizontalResult.getScore() > 0) {
-                results.add(horizontalResult);
-            }
-            if (verticalResult.getScore() > 0) {
-                results.add(verticalResult);
+        for (Future<Result> resultFuture : resultFutures) {
+            printProgress(count++, resultFutures.size());
+            Result result = resultFuture.get();
+            if (result.getScore() > 0) {
+                results.add(result);
             }
         }
 
@@ -344,7 +345,7 @@ public class Main {
                 tile.getLocation().setRow(curLoc.getRow());
                 tile.getLocation().setCol(curLoc.getCol());
 
-                while(!board.addNewTile(tile)) {
+                while (!board.addNewTile(tile)) {
                     if (firstResult.getOrientation() == Orientation.HORIZONTAL) {
                         tile.getLocation().oneRight();
                     } else {
@@ -362,24 +363,13 @@ public class Main {
     static Result tryHorizontalPlacements(GameBoard board, List<Tile> permutation) {
         Result result = new Result();
         List<Tile> tiles = new ArrayList<>(permutation);
-        int boardSize = board.getConfig().getSize();
-        final CountDownLatch latch = new CountDownLatch(boardSize * boardSize);
 
         for (int r = 0; r < board.getConfig().getSize(); r++) {
             for (int c = 0; c < board.getConfig().getSize(); c++) {
                 final int row = r;
                 final int col = c;
-                executorService.execute(() -> {
-                    tryHorizontalPlacementsHelper(board, row, col, tiles, result);
-                    latch.countDown();
-                });
+                tryHorizontalPlacementsHelper(board, row, col, tiles, result);
             }
-        }
-
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            p("InterruptedException while trying horizontal placements");
         }
 
         result.setOrientation(Orientation.HORIZONTAL);
@@ -390,7 +380,7 @@ public class Main {
     static void tryHorizontalPlacementsHelper(GameBoard board, int r, int c, List<Tile> tiles, final Result result) {
         TrieNode cur = trieDict;
         Location curLoc = new Location(r, c);
-        Map<Location,Tile> newTiles = new HashMap<>(tiles.size());
+        Map<Location, Tile> newTiles = new HashMap<>(tiles.size());
 
         for (Tile tile : tiles) {
             while (board.getOldTiles().containsKey(curLoc) && curLoc.getCol() < board.getConfig().getSize()) {
@@ -417,14 +407,12 @@ public class Main {
             }
         }
         if (newTiles.size() == tiles.size()) {
-            int score = computeScore(newTiles,  board, Orientation.HORIZONTAL);
+            int score = computeScore(newTiles, board, Orientation.HORIZONTAL);
 
-            synchronized (result) {
-                if (score > result.getScore()) {
-                    result.setScore(score);
-                    result.setTiles(tiles);
-                    result.setStartLocation(new Location(r, c));
-                }
+            if (score > result.getScore()) {
+                result.setScore(score);
+                result.setTiles(tiles);
+                result.setStartLocation(new Location(r, c));
             }
         }
     }
@@ -432,24 +420,13 @@ public class Main {
     static Result tryVerticalPlacements(GameBoard board, List<Tile> permutation) {
         Result result = new Result();
         List<Tile> tiles = new ArrayList<>(permutation);
-        int boardSize = board.getConfig().getSize();
-        final CountDownLatch latch = new CountDownLatch(boardSize * boardSize);
 
         for (int r = 0; r < board.getConfig().getSize(); r++) {
             for (int c = 0; c < board.getConfig().getSize(); c++) {
                 final int row = r;
                 final int col = c;
-                executorService.execute(() -> {
-                    tryVerticalPlacementsHelper(board, row, col, tiles, result);
-                    latch.countDown();
-                });
+                tryVerticalPlacementsHelper(board, row, col, tiles, result);
             }
-        }
-
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            p("InterruptedException while trying horizontal placements");
         }
 
         result.setOrientation(Orientation.VERTICAL);
@@ -460,7 +437,7 @@ public class Main {
     static void tryVerticalPlacementsHelper(GameBoard board, int r, int c, List<Tile> tiles, final Result result) {
         TrieNode cur = trieDict;
         Location curLoc = new Location(r, c);
-        Map<Location,Tile> newTiles = new HashMap<>(tiles.size());
+        Map<Location, Tile> newTiles = new HashMap<>(tiles.size());
 
         for (Tile tile : tiles) {
             while (board.getOldTiles().containsKey(curLoc) && curLoc.getRow() < board.getConfig().getSize()) {
@@ -489,17 +466,15 @@ public class Main {
         if (newTiles.size() == tiles.size()) {
             int score = computeScore(newTiles, board, Orientation.VERTICAL);
 
-            synchronized (result) {
-                if (score > result.getScore()) {
-                    result.setScore(score);
-                    result.setTiles(tiles);
-                    result.setStartLocation(new Location(r, c));
-                }
+            if (score > result.getScore()) {
+                result.setScore(score);
+                result.setTiles(tiles);
+                result.setStartLocation(new Location(r, c));
             }
         }
     }
 
-    public static int computeScore(Map<Location,Tile> newTiles, GameBoard board, Orientation orientation) {
+    public static int computeScore(Map<Location, Tile> newTiles, GameBoard board, Orientation orientation) {
         if (!board.isValid(newTiles, orientation)) {
             return 0;
         }
@@ -545,7 +520,7 @@ public class Main {
         return score;
     }
 
-    public static Set<List<Tile>> findNewWords(Map<Location,Tile> newTiles, GameBoard board, Orientation orientation) {
+    public static Set<List<Tile>> findNewWords(Map<Location, Tile> newTiles, GameBoard board, Orientation orientation) {
         Set<List<Tile>> words = new HashSet<>();
         int verticalWordCount = 0;
         int horizontalWordCount = 0;
