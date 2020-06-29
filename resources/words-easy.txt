@@ -57020,6 +57020,9 @@ jetports
 jets
 jetsam
 jetsams
+jetski
+jetskiing
+jetskis
 jetsom
 jetsoms
 jetted
@@ -57318,7 +57321,9 @@ jokinesses
 joking
 jokingly
 joky
+jol
 jole
+jols
 joles
 jollied
 jollier
@@ -61209,11 +61214,6 @@ lexicons
 lexis
 ley
 leys
-lez
-lezzes
-lezzie
-lezzies
-lezzy
 li
 liability
 liable
@@ -70754,11 +70754,6 @@ nay
 nays
 naysayer
 naysayers
-nazified
-nazifies
-nazify
-nazifying
-nazis
 ne
 neap
 neaps
@@ -87287,6 +87282,7 @@ quodlibets
 quods
 quohog
 quohogs
+quoi
 quoin
 quoined
 quoining
@@ -109547,6 +109543,8 @@ tagged
 tagger
 taggers
 tagging
+tagine
+tagines
 taglike
 tagmeme
 tagmemes
@@ -109634,6 +109632,8 @@ taipan
 taipans
 taj
 tajes
+tajine
+tajines
 taka
 takable
 takahe
