@@ -330,7 +330,6 @@ public class Main {
         }
 
         for (Future<Result> resultFuture : resultFutures) {
-            printProgress(count++, resultFutures.size());
             Result result = resultFuture.get();
             if (result.getScore() > 0) {
                 results.add(result);
@@ -378,29 +377,16 @@ public class Main {
     }
 
     static void tryHorizontalPlacementsHelper(GameBoard board, int r, int c, List<Tile> tiles, final Result result) {
-        TrieNode cur = trieDict;
         Location curLoc = new Location(r, c);
         Map<Location, Tile> newTiles = new HashMap<>(tiles.size());
 
         for (Tile tile : tiles) {
             while (board.getOldTiles().containsKey(curLoc) && curLoc.getCol() < board.getConfig().getSize()) {
-                char curLetter = board.getOldTiles().get(curLoc).getLetter();
-                if (!cur.getChildren().containsKey(curLetter)) {
-                    return;
-                }
-                cur = cur.getChildren().get(curLetter);
                 curLoc.oneRight();
             }
 
             if (curLoc.getCol() < board.getConfig().getSize()) {
-                char curLetter = tile.getLetter();
-                if (!cur.getChildren().containsKey(curLetter)) {
-                    return;
-                }
-
                 newTiles.put(new Location(curLoc), tile);
-
-                cur = cur.getChildren().get(curLetter);
                 curLoc.oneRight();
             } else {
                 return;
@@ -435,29 +421,16 @@ public class Main {
     }
 
     static void tryVerticalPlacementsHelper(GameBoard board, int r, int c, List<Tile> tiles, final Result result) {
-        TrieNode cur = trieDict;
         Location curLoc = new Location(r, c);
         Map<Location, Tile> newTiles = new HashMap<>(tiles.size());
 
         for (Tile tile : tiles) {
             while (board.getOldTiles().containsKey(curLoc) && curLoc.getRow() < board.getConfig().getSize()) {
-                char curLetter = board.getOldTiles().get(curLoc).getLetter();
-                if (!cur.getChildren().containsKey((curLetter))) {
-                    return;
-                }
-                cur = cur.getChildren().get(curLetter);
                 curLoc.oneDown();
             }
 
             if (curLoc.getRow() < board.getConfig().getSize()) {
-                char curLetter = tile.getLetter();
-                if (!cur.getChildren().containsKey(curLetter)) {
-                    return;
-                }
-
                 newTiles.put(new Location(curLoc), tile);
-
-                cur = cur.getChildren().get(curLetter);
                 curLoc.oneDown();
             } else {
                 return;
@@ -528,6 +501,7 @@ public class Main {
         for (Location tileLoc : newTiles.keySet()) {
             List<Tile> word = new ArrayList<>();
             Location curLoc = new Location(tileLoc);
+            TrieNode curTrieNode = trieDict;
 
             // Vertical
             // find the start
@@ -542,12 +516,19 @@ public class Main {
                 Tile tileToAdd = board.getOldTiles().getOrDefault(curLoc, newTiles.get(curLoc)).getCopy();
                 tileToAdd.setLocation(new Location(curLoc));
                 word.add(tileToAdd);
+
+                if (!curTrieNode.getChildren().containsKey(tileToAdd.getLetter())) {
+                    // we determined that we cannot make a word so set the current trie node
+                    // to a node that is definitely not a word and break out of the loop
+                    curTrieNode = new TrieNode();
+                    break;
+                }
+
                 curLoc.oneDown();
+                curTrieNode = curTrieNode.getChildren().get(tileToAdd.getLetter());
             }
 
-            String strWord = listToString(word);
-
-            boolean isValidWord = dict.contains(strWord);
+            boolean isValidWord = curTrieNode.isWord();
             boolean isLoneWord = board.getOldTiles().isEmpty();
 
             if (isValidWord && (isLoneWord || word.size() > 1)) {
@@ -573,6 +554,7 @@ public class Main {
             word = new ArrayList<>();
             curLoc.setRow(tileLoc.getRow());
             curLoc.setCol(tileLoc.getCol());
+            curTrieNode = trieDict;
 
             // Horizontal
             // find the start
@@ -588,12 +570,18 @@ public class Main {
                 tileToAdd.setLocation(new Location(curLoc));
                 word.add(tileToAdd);
 
+                if (!curTrieNode.getChildren().containsKey(tileToAdd.getLetter())) {
+                    // we determined that we cannot make a word so set the current trie node
+                    // to a node that is definitely not a word and break out of the loop
+                    curTrieNode = new TrieNode();
+                    break;
+                }
+
                 curLoc.oneRight();
+                curTrieNode = curTrieNode.getChildren().get(tileToAdd.getLetter());
             }
 
-            strWord = listToString(word);
-
-            isValidWord = dict.contains(strWord);
+            isValidWord = curTrieNode.isWord();
 
             if (isValidWord) {
                 if (isLoneWord || word.size() > 1) {
@@ -626,14 +614,6 @@ public class Main {
         }
 
         return words;
-    }
-
-    private static String listToString(List<Tile> word) {
-        StringBuilder sb = new StringBuilder();
-        for (Tile tile : word) {
-            sb.append(tile.getLetter());
-        }
-        return sb.toString();
     }
 
     static Set<Tiles> generatePermutations(String rack, int wildcards) {
