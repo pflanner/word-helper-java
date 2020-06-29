@@ -148,6 +148,18 @@ public class MainTest {
                         0
                 ),
                 new TestCase(
+                        "Invalid word placement 3",
+                        "resources/easy-test2.gbd",
+                        getTileMapFor(
+                                new Tile('j', new Location(0, 0)),
+                                new Tile('a', new Location(0, 1)),
+                                new Tile('w', new Location(0, 2)),
+                                new Tile('s', new Location(0, 3))
+                        ),
+                        Orientation.HORIZONTAL,
+                        0
+                ),
+                new TestCase(
                         "Good",
                         "resources/easy-test.gbd",
                         getTileMapFor(
