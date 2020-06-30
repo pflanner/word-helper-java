@@ -33,7 +33,6 @@ public class Main {
     // TODO reduce human input. there is a lot of possibility for error manually inputting everything
 
     private static final Properties config = loadConfig();
-    private static final Set<String> dict = loadDictionary();
     private static final TrieNode trieDict = loadTrieDictionary();
     private static final boolean showAdditionalWords = Boolean.parseBoolean(config.getProperty("showAdditionalWords"));
     private static final ExecutorService executorService = Executors.newFixedThreadPool(Integer.parseInt(config.getProperty("numThreads")));
@@ -266,22 +265,6 @@ public class Main {
         return "tile" + r + "," + c;
     }
 
-    private static Set<String> loadDictionary() {
-        Set<String> dict = new HashSet<>();
-        File f = new File(config.getProperty("dictionaryPath"));
-        try (FileInputStream fis = new FileInputStream(f)) {
-            Scanner sc = new Scanner(fis);
-            while (sc.hasNext()) {
-                dict.add(sc.next());
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("FileNotFoundException when loading dictionary");
-        } catch (IOException e) {
-            System.out.println("IOException when loading dictionary");
-        }
-        return dict;
-    }
-
     private static TrieNode loadTrieDictionary() {
         TrieNode root = new TrieNode();
         File f = new File(config.getProperty("dictionaryPath"));
@@ -319,8 +302,6 @@ public class Main {
 
     static List<Result> computeHighestScore(GameBoard board, String rack, int wildcard) throws Exception {
         List<Result> results = new ArrayList<>();
-
-        int count = 0;
 
         Set<Tiles> permutations = generatePermutations(rack, wildcard);
         List<Future<Result>> resultFutures = new ArrayList<>(permutations.size() * 2);
@@ -365,9 +346,7 @@ public class Main {
 
         for (int r = 0; r < board.getConfig().getSize(); r++) {
             for (int c = 0; c < board.getConfig().getSize(); c++) {
-                final int row = r;
-                final int col = c;
-                tryHorizontalPlacementsHelper(board, row, col, tiles, result);
+                tryHorizontalPlacementsHelper(board, r, c, tiles, result);
             }
         }
 
@@ -409,9 +388,7 @@ public class Main {
 
         for (int r = 0; r < board.getConfig().getSize(); r++) {
             for (int c = 0; c < board.getConfig().getSize(); c++) {
-                final int row = r;
-                final int col = c;
-                tryVerticalPlacementsHelper(board, row, col, tiles, result);
+                tryVerticalPlacementsHelper(board, r, c, tiles, result);
             }
         }
 
@@ -669,13 +646,6 @@ public class Main {
         }
 
         return new Tiles(rack);
-    }
-
-    private static void printProgress(int count, int total) {
-        if (total >= 100 && (count % (total / 100) == 0)) {
-            int progress = (int) ((float) count / (float) total * 100f);
-            System.out.format("|%-99s|%n", "=".repeat(progress));
-        }
     }
 
     private static void saveGameBoard(GameBoard gameBoard, String fileName) {
