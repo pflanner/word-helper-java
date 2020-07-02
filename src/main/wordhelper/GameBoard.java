@@ -6,7 +6,6 @@ import wordhelper.config.StandardBoardConfig;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -311,9 +310,7 @@ public class GameBoard {
         int columnSize = 5;
         StringBuilder sb = new StringBuilder();
         String cellFormat = "%-" + columnSize + "s";
-        for (int i = 0; i < config.getSize() * (columnSize + 1); i++) {
-            sb.append("-");
-        }
+        sb.append("-".repeat(config.getSize() * (columnSize + 1)));
         sb.append(String.format("%n"));
         for (int i = 0; i < config.getSize(); i++) {
             for (int j = 0; j < config.getSize(); j++) {
@@ -332,9 +329,7 @@ public class GameBoard {
                 }
             }
             sb.append(String.format("%n"));
-            for (int k = 0; k < config.getSize() * (columnSize + 1); k++) {
-                sb.append("-");
-            }
+            sb.append("-".repeat(config.getSize() * (columnSize + 1)));
             sb.append(String.format("%n"));
         }
         return sb.toString();
@@ -344,9 +339,7 @@ public class GameBoard {
         int columnSize = 6;
         StringBuilder sb = new StringBuilder();
         String cellFormat = "%-" + columnSize + "s";
-        for (int i = 0; i < config.getSize() * (columnSize + 1); i++) {
-            sb.append("-");
-        }
+        sb.append("-".repeat(config.getSize() * (columnSize + 1)));
         sb.append(String.format("%n"));
         for (int i = 0; i < config.getSize(); i++) {
             for (int j = 0; j < config.getSize(); j++) {
@@ -367,9 +360,7 @@ public class GameBoard {
                 }
             }
             sb.append(String.format("%n"));
-            for (int k = 0; k < config.getSize() * (columnSize + 1); k++) {
-                sb.append("-");
-            }
+            sb.append("-".repeat(config.getSize() * (columnSize + 1)));
             sb.append(String.format("%n"));
         }
         return sb.toString();
