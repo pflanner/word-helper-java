@@ -20,10 +20,14 @@ public class Tiles extends ArrayList<Tile> {
         super();
 
         tileString = tileString.toLowerCase();
+        Tile prev = null;
         for (Character c : tileString.toCharArray()) {
             if (Constants.ALPHABET_SET.contains(c)) {
                 Tile tile = new Tile(c);
                 add(tile);
+                prev = tile;
+            } else if (c == '?' && prev != null) {
+                prev.setWildcard(true);
             }
         }
     }
