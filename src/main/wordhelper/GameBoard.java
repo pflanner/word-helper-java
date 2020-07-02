@@ -315,15 +315,17 @@ public class GameBoard {
         for (int i = 0; i < config.getSize(); i++) {
             for (int j = 0; j < config.getSize(); j++) {
                 Location loc = new Location(i, j);
+                String cellValue = "";
                 if (oldTiles.containsKey(loc)) {
-                    String letter = oldTiles.get(loc).getLetter().toString();
-                    sb.append(String.format(cellFormat, StringUtils.center(letter, columnSize)));
+                    Tile tile = oldTiles.get(loc);
+                    cellValue = tile.getLetter().toString();
+                    if (tile.isWildcard()) {
+                        cellValue = "-" + cellValue + "-";
+                    }
                 } else if (newTiles.containsKey(loc)) {
-                    String letter = newTiles.get(loc).getLetter().toString();
-                    sb.append(String.format(cellFormat, StringUtils.center("*" + letter + "*", columnSize)));
-                } else {
-                    sb.append(String.format(cellFormat, ""));
+                    cellValue = "*" + newTiles.get(loc).getLetter().toString() + "*";
                 }
+                sb.append(String.format(cellFormat, StringUtils.center(cellValue, columnSize)));
                 if (j < config.getSize() - 1) {
                     sb.append("|");
                 }
