@@ -1790,6 +1790,7 @@ aflame
 aflatoxin
 aflatoxins
 afloat
+aflood
 aflutter
 afoam
 afoot
@@ -5949,6 +5950,7 @@ ascocarps
 ascogonia
 ascogonium
 ascomycete
+ascon
 ascorbate
 ascorbates
 ascorbic
@@ -8870,6 +8872,7 @@ bayous
 bays
 baywood
 baywoods
+baza
 bazaar
 bazaars
 bazar
@@ -15240,6 +15243,7 @@ cabooses
 caboshed
 cabotage
 cabotages
+cabover
 cabresta
 cabrestas
 cabresto
@@ -19723,6 +19727,7 @@ cinnamon
 cinnamons
 cinnamyl
 cinnamyls
+cinq
 cinquain
 cinquains
 cinque
@@ -23248,6 +23253,8 @@ cooters
 cootie
 cooties
 coots
+cooze
+coozes
 cop
 copacetic
 copaiba
@@ -29260,6 +29267,7 @@ deuterons
 deutoplasm
 deutzia
 deutzias
+deux
 dev
 deva
 devaluate
@@ -43703,6 +43711,7 @@ fusain
 fusains
 fuscous
 fuse
+fusebox
 fused
 fusee
 fusees
@@ -52265,10 +52274,13 @@ huggers
 hugging
 hugs
 huh
+hui
 huic
+huies
 huipil
 huipiles
 huipils
+huis
 huisache
 huisaches
 hula
@@ -58724,6 +58736,7 @@ kippering
 kippers
 kipping
 kips
+kipsie
 kipskin
 kipskins
 kir
@@ -70756,6 +70769,7 @@ naysayer
 naysayers
 ne
 neap
+neaped
 neaps
 near
 nearby
@@ -98162,6 +98176,7 @@ sepulchred
 sepulchres
 sepulture
 sepultures
+seq
 sequacious
 sequacity
 sequel
@@ -98453,6 +98468,7 @@ setulose
 setulous
 setup
 setups
+seul
 seven
 sevenfold
 sevens
@@ -105435,6 +105451,7 @@ steelworks
 steely
 steelyard
 steelyards
+steen
 steenbok
 steenboks
 steep
@@ -121653,6 +121670,7 @@ wags
 wagsome
 wagtail
 wagtails
+wah
 wahconda
 wahcondas
 wahine
@@ -125698,6 +125716,8 @@ zoftig
 zoic
 zoisite
 zoisites
+zol
+zols
 zombi
 zombie
 zombielike
