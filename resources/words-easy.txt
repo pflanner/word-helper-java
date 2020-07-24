@@ -7,6 +7,7 @@ aal
 aalii
 aaliis
 aals
+aapa
 aardvark
 aardvarks
 aardwolf
@@ -39393,6 +39394,7 @@ fellows
 fellowship
 fells
 felly
+felo
 felon
 felonies
 felonious
@@ -40558,6 +40560,8 @@ fixedness
 fixer
 fixers
 fixes
+fixie
+fixies
 fixing
 fixings
 fixit
@@ -56665,6 +56669,7 @@ jalapic
 jalapin
 jalapins
 jalaps
+jaleo
 jalop
 jalopies
 jaloppies
@@ -87290,6 +87295,7 @@ quizzers
 quizzes
 quizzical
 quizzing
+quo
 quod
 quodlibet
 quodlibets
@@ -98576,6 +98582,7 @@ sexualized
 sexualizes
 sexually
 sexy
+sez
 sferics
 sforzandi
 sforzando
@@ -107442,6 +107449,7 @@ subway
 subwayed
 subwaying
 subways
+subweb
 subworld
 subworlds
 subwriter
