@@ -8627,6 +8627,8 @@ asininity
 ask
 askance
 askant
+askari
+askaris
 asked
 asker
 askers
@@ -43887,6 +43889,7 @@ doeskin
 doeskins
 doest
 doeth
+dof
 doff
 doffed
 doffer
@@ -46807,6 +46810,7 @@ edulcorating
 edutainment
 edutainments
 ee
+eejit
 eek
 eel
 eelgrass
@@ -49354,6 +49358,7 @@ ensue
 ensued
 ensues
 ensuing
+ensuite
 ensure
 ensured
 ensurer
@@ -54670,6 +54675,7 @@ fenestrate
 fenestrated
 fenestration
 fenestrations
+feng
 fenland
 fenlands
 fennec
@@ -58525,6 +58531,7 @@ foxhunters
 foxhunting
 foxhuntings
 foxhunts
+foxie
 foxier
 foxiest
 foxily
@@ -67608,6 +67615,8 @@ hegumens
 hegumeny
 heh
 hehs
+heiau
+heiaus
 heifer
 heifers
 heigh
@@ -80347,6 +80356,7 @@ kabuki
 kabukis
 kachina
 kachinas
+kadai
 kaddish
 kaddishim
 kadi
@@ -80590,6 +80600,8 @@ kathodes
 kathodic
 kation
 kations
+katipo
+katipos
 kats
 katydid
 katydids
@@ -87885,6 +87897,7 @@ malfunctioned
 malfunctioning
 malfunctions
 malgre
+mali
 malic
 malice
 malices
@@ -98516,6 +98529,7 @@ nippled
 nipples
 nippy
 nips
+niqab
 nirvana
 nirvanas
 nirvanic
@@ -153537,6 +153551,7 @@ tenebrists
 tenebrous
 tenement
 tenements
+tenesi
 tenesmic
 tenesmus
 tenesmuses
@@ -153945,6 +153960,7 @@ tertians
 tertiaries
 tertiary
 tervalent
+terza
 tesla
 teslas
 tessellate
@@ -167111,6 +167127,7 @@ vied
 vier
 viers
 vies
+vieux
 view
 viewable
 viewdata
@@ -168240,6 +168257,7 @@ wabblier
 wabbliest
 wabbling
 wabbly
+wabi
 wabs
 wack
 wacke
