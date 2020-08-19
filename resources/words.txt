@@ -47134,6 +47134,8 @@ ejectments
 ejector
 ejectors
 ejects
+ejido
+ejidos
 eke
 eked
 ekes
@@ -55683,6 +55685,7 @@ fioritura
 fioriture
 fipple
 fipples
+fiqh
 fique
 fiques
 fir
@@ -79355,6 +79358,7 @@ jeepney
 jeepneys
 jeeps
 jeer
+jeera
 jeered
 jeerer
 jeerers
@@ -83051,6 +83055,7 @@ lateen
 lateener
 lateeners
 lateens
+lateish
 lately
 laten
 latencies
@@ -86495,6 +86500,7 @@ loyalties
 loyalty
 lozenge
 lozenges
+lsd
 luau
 luaus
 lubber
@@ -120935,6 +120941,8 @@ punditries
 punditry
 pundits
 pung
+punga
+pungas
 pungencies
 pungency
 pungent
@@ -155654,6 +155662,7 @@ timeserver
 timeservers
 timeserving
 timeservings
+timeses
 timetable
 timetables
 timework
@@ -165875,6 +165884,7 @@ vans
 vantage
 vantages
 vanward
+vape
 vapid
 vapidities
 vapidity
@@ -167883,6 +167893,7 @@ voids
 voila
 voile
 voiles
+voix
 volant
 volante
 volar
@@ -169262,6 +169273,8 @@ waywardly
 waywardness
 waywardnesses
 wayworn
+wazir
+wazirs
 we
 weak
 weaken
@@ -172680,6 +172693,7 @@ zaikai
 zaikais
 zaire
 zaires
+zakat
 zamarra
 zamarras
 zamarro
