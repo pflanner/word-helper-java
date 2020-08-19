@@ -14504,6 +14504,7 @@ billycan
 billycans
 billycock
 billycocks
+billyo
 bilobate
 bilobed
 bilocation
@@ -141469,6 +141470,8 @@ snath
 snathe
 snathes
 snaths
+snavel
+snavels
 snaw
 snawed
 snawing
