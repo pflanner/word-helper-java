@@ -80935,6 +80935,9 @@ kevel
 kevels
 kevil
 kevils
+kewl
+kewler
+kewlest
 kex
 kexes
 key
@@ -97608,6 +97611,7 @@ nelson
 nelsons
 nelumbo
 nelumbos
+nem
 nema
 nemas
 nematic
