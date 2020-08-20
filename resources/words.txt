@@ -141476,6 +141476,9 @@ snathes
 snaths
 snavel
 snavels
+snavle
+snavled
+snavles
 snaw
 snawed
 snawing
@@ -158343,6 +158346,8 @@ tribes
 tribesman
 tribesmen
 tribespeople
+triblet
+triblets
 triboelectric
 triboelectricities
 triboelectricity
@@ -172138,8 +172143,10 @@ yaffed
 yaffing
 yaffs
 yag
+yage
 yager
 yagers
+yages
 yagi
 yagis
 yags
